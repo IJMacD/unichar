@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import utf8 from 'utf8';
 
 import classes from './style.cssm';
 
@@ -31,25 +32,11 @@ export default class App extends Component {
         <ul className={classes.output}>
           <li><DecimalCharacters value={value} /></li>
           <li><HexCharacters value={value} /></li>
+          <li><Utf8Bytes value={value} /></li>
         </ul>
       </div>
     );
   }
-}
-
-function DecimalCharacter (props) {
-  const codepoint = parseInt(props.value, 10);
-  if(isNaN(codepoint) || codepoint != props.value)
-    return null;
-
-  return <Char value={codepoint} />
-}
-
-function HexCharacter (props) {
-  if(isNaN(parseInt(props.value, 16)))
-    return null;
-
-  return <Char value={parseInt(props.value, 16)} />
 }
 
 function DecimalCharacters (props) {
@@ -72,6 +59,23 @@ function HexCharacters (props) {
 
   return <div>
     <div className={classes.label}>Hexadecimal</div>
+    {
+      codepoints.map((x,i) => <Char value={x} key={i} />)
+    }
+  </div>
+}
+
+function Utf8Bytes (props) {
+  const raw = String(props.value).split(" ");
+
+  const bytes = raw.map(x => String.fromCharCode(parseInt(x, 16))).join("");
+
+  const string = utf8.decode(bytes);
+
+  const codepoints = string.split("").map(x => x.codePointAt(0));
+
+  return <div>
+    <div className={classes.label}>Utf8</div>
     {
       codepoints.map((x,i) => <Char value={x} key={i} />)
     }

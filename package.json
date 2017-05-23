@@ -19,7 +19,8 @@
   "homepage": "https://github.com/IJMacD/unichar#readme",
   "dependencies": {
     "react": "^15.5.3",
-    "react-dom": "^15.5.3"
+    "react-dom": "^15.5.3",
+    "utf8": "^2.1.2"
   },
   "devDependencies": {
     "babel-core": "^6.24.1",
