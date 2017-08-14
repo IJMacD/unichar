@@ -72,7 +72,7 @@ function Utf8Bytes (props) {
 
   const string = utf8.decode(bytes);
 
-  const codepoints = string.split("").map(x => x.codePointAt(0));
+  const codepoints = [...string].map(x => x.codePointAt(0));
 
   return <div>
     <div className={classes.label}>Utf8</div>
