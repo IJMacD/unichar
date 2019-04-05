@@ -93,6 +93,7 @@ export default class App extends Component {
               <ul className={classes.output}>
                 <li><Characters codepoints={codepoints} /></li>
                 <li><UTF8Bytes codepoints={codepoints} /></li>
+                <li><UTF8Binary codepoints={codepoints} /></li>
               </ul>
             }
           </div>
@@ -114,7 +115,7 @@ const inputValidators = {
     const raw = String(value).split(" ");
     const codepoints = raw.map(x => parseInt(x, 10));
 
-    return codepoints.every(x => x >= 0 && x < 0x11000);
+    return codepoints.every(x => x >= 0 && x < 0x110000);
   },
   hex: value => {
     if (!hexDigits(value)) {
@@ -124,7 +125,7 @@ const inputValidators = {
     const raw = String(value).split(" ");
     const codepoints = raw.map(x => parseInt(x, 16));
 
-    return codepoints.every(x => x >= 0 && x < 0x11000);
+    return codepoints.every(x => x >= 0 && x < 0x110000);
   },
   utf8: value => {
     if (!hexDigits(value)) {
@@ -221,9 +222,18 @@ function Characters (props) {
 
 function UTF8Bytes (props) {
   return <div>
-    <div className={classes.label}>UTF8</div>
+    <div className={classes.label}>UTF-8</div>
     {
       props.codepoints.map((x,i) => <Bytes value={x} key={i} />)
+    }
+  </div>
+}
+
+function UTF8Binary (props) {
+  return <div>
+    <div className={classes.label}>UTF-8</div>
+    {
+      props.codepoints.map((x,i) => <BinaryBytes value={x} key={i} />)
     }
   </div>
 }
@@ -244,5 +254,15 @@ function Bytes (props) {
 
   return <div className={classes.byte} style={{ marginRight: 4 }}>
     <div>{bytes.map(b => <span>{b.toString(16).padStart(2,'0')}</span>)}</div>
+  </div>
+}
+
+function BinaryBytes (props) {
+  if(isNaN(props.value)) return null;
+
+  const bytes = [...utf8.encode(String.fromCodePoint(props.value))].map(c => c.charCodeAt(0));
+
+  return <div className={classes.byte} style={{ marginRight: 4 }}>
+    <div>{bytes.map(b => <span>{b.toString(2).padStart(8,'0')}</span>)}</div>
   </div>
 }

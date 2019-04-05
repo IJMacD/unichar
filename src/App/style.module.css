@@ -64,11 +64,17 @@
 }
 .char {
   display: inline-block;
-  border: 1px solid #ECECEC;
+  border: 1px solid #d0d0d0;
   white-space: pre;
 }
 .byte {
   display: inline-block;
-  border: 1px solid #ECECEC;
+  border: 1px solid #d0d0d0;
   font-family: 'Courier New', Courier, monospace;
+}
+.byte span {
+  border-right: 1px dashed #d0d0d0;
+}
+.byte span:last-child {
+  border-right: none;
 }
