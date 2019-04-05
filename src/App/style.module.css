@@ -11,6 +11,33 @@
   text-align: center;
   width: 100%;
 }
+.inOutContainer {
+  display: flex;
+}
+.inputList {
+  list-style: none;
+  padding: 0;
+}
+.inputChoice {
+  cursor: pointer;
+  margin: 4px;
+  padding: 8px;
+  border: 1px solid #CCC;
+}
+.inputChoice:hover {
+  background: rgb(255, 255, 175);
+}
+.invalidInput,
+.invalidInput:hover {
+  cursor: not-allowed;
+  background: #ffc0c0;
+  border-color: #803030;
+}
+.selectedInput {
+  font-weight: bold;
+  background: #ffff91;
+  border-color: #fcfc44;
+}
 .output {
   list-style: none;
   margin: 0;
