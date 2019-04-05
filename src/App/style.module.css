@@ -11,6 +11,9 @@
   text-align: center;
   width: 100%;
 }
+.input:focus {
+  outline: none;
+}
 .inOutContainer {
   display: flex;
 }
@@ -27,6 +30,12 @@
 .inputChoice:hover {
   background: rgb(255, 255, 175);
 }
+.selectedInput {
+  font-weight: bold;
+  background: #ffff91;
+  border-color: #fcfc44;
+}
+.selectedInput.invalidInput,
 .invalidInput,
 .invalidInput:hover {
   cursor: not-allowed;
@@ -56,4 +65,10 @@
 .char {
   display: inline-block;
   border: 1px solid #ECECEC;
+  white-space: pre;
+}
+.byte {
+  display: inline-block;
+  border: 1px solid #ECECEC;
+  font-family: 'Courier New', Courier, monospace;
 }

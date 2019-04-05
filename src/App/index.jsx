@@ -22,6 +22,8 @@ export default class App extends Component {
   render () {
     const { value, inputInterpretation } = this.state;
 
+    const isValid = inputValidators[inputInterpretation](value);
+
     const inputs = {
       "raw": "Raw Characters",
       "decimal": "Code Point List (Decimal)",
@@ -53,6 +55,7 @@ export default class App extends Component {
           value={value}
           onChange={this.onChange}
           className={classes.input}
+          style={{border: isValid ? "" : "1px solid #f33"}}
         />
         <div className={classes.inOutContainer}>
           <div style={{flex:1}}>
@@ -66,7 +69,8 @@ export default class App extends Component {
                   if (!isValid) {
                     classNames += " " + classes.invalidInput;
                   }
-                  else if (key === inputInterpretation) {
+
+                  if (key === inputInterpretation) {
                     classNames += " " + classes.selectedInput;
                   }
 
@@ -85,10 +89,12 @@ export default class App extends Component {
           </div>
           <div style={{flex:1}}>
             <h2 className={classes.sectionHeader}>Output</h2>
-            <ul className={classes.output}>
-              <li><Characters codepoints={codepoints} /></li>
-              <li><UTF8Bytes codepoints={codepoints} /></li>
-            </ul>
+            { isValid &&
+              <ul className={classes.output}>
+                <li><Characters codepoints={codepoints} /></li>
+                <li><UTF8Bytes codepoints={codepoints} /></li>
+              </ul>
+            }
           </div>
         </div>
       </div>
@@ -96,21 +102,45 @@ export default class App extends Component {
   }
 }
 
+const hexDigits = value => /^[\da-f ]*$/i.test(value);
+
 const inputValidators = {
   raw: () => true,
-  decimal: value => /^[\d ]*$/.test(value),
-  hex: value => /^[\da-f ]*$/i.test(value),
+  decimal: value => {
+    if(!/^[\d ]*$/.test(value)) {
+      return false;
+    }
+
+    const raw = String(value).split(" ");
+    const codepoints = raw.map(x => parseInt(x, 10));
+
+    return codepoints.every(x => x >= 0 && x < 0x11000);
+  },
+  hex: value => {
+    if (!hexDigits(value)) {
+      return false;
+    }
+
+    const raw = String(value).split(" ");
+    const codepoints = raw.map(x => parseInt(x, 16));
+
+    return codepoints.every(x => x >= 0 && x < 0x11000);
+  },
   utf8: value => {
-    if (!inputValidators.hex(value)) {
+    if (!hexDigits(value)) {
       return false;
     }
 
     try {
-      const raw = String(value).split(" ");
-      const bytes = raw.map(x => parseInt(x, 16));
-
-      if (!bytes.every(x => x >= 0 && x < 256)) {
+      const raw = String(value).replace(/ /g, "");
+      if (raw.length % 2) {
         return false;
+      }
+
+      const bytes = [];
+
+      for (let i = 0; i < raw.length; i += 2) {
+        bytes.push(parseInt(raw.substr(i,2), 16));
       }
 
       const byteString = bytes.map(x => String.fromCharCode(x)).join("");
@@ -144,21 +174,32 @@ function parseAsRawChars (value) {
   const codepoints = [];
 
   for (let i = 0; i < raw.length; i++) {
-    codepoints.push(raw.codePointAt(i));
+    const cp = raw.codePointAt(i);
+    codepoints.push(cp);
+    if (cp > 0xffff) {
+      i++;
+    }
   }
 
   return codepoints;
 }
 
 function parseAsUtf8Bytes (value) {
-  const raw = String(value).split(" ");
+  const raw = String(value).replace(/ /g, "");
+  if (raw.length % 2) {
+    return [];
+  }
 
-  const bytes = raw.map(x => String.fromCharCode(parseInt(x, 16))).join("");
+  const bytes = [];
 
-  console.log(bytes);
+  for (let i = 0; i < raw.length; i += 2) {
+    bytes.push(parseInt(raw.substr(i,2), 16));
+  }
+
+  const byteString = bytes.map(x => String.fromCharCode(x)).join("");
 
   try {
-    const string = utf8.decode(bytes);
+    const string = utf8.decode(byteString);
 
     const codepoints = [...string].map(x => x.codePointAt(0));
 
@@ -201,7 +242,7 @@ function Bytes (props) {
 
   const bytes = [...utf8.encode(String.fromCodePoint(props.value))].map(c => c.charCodeAt(0));
 
-  return <div className={classes.char} style={{ marginRight: 4 }}>
-    <div>{bytes.map(b => <span>{b.toString(16)}</span>)}</div>
+  return <div className={classes.byte} style={{ marginRight: 4 }}>
+    <div>{bytes.map(b => <span>{b.toString(16).padStart(2,'0')}</span>)}</div>
   </div>
 }
