@@ -59,6 +59,10 @@
   background: #ffff91;
   border-color: #fcfc44;
 }
+.inputChoice p {
+  margin: 0;
+  color: #999;
+}
 .output {
   list-style: none;
   margin: 0;

@@ -31,22 +31,11 @@ export default class App extends Component {
       "utf8": "UTF-8 Bytes",
     };
 
-    let codepoints = [];
-
-    switch (inputInterpretation) {
-      case "decimal":
-        codepoints = parseAsDecimal(value);
-        break;
-      case "hex":
-        codepoints = parseAsHexidecimal(value);
-        break;
-      case "raw":
-        codepoints = parseAsRawChars(value);
-        break;
-      case "utf8":
-        codepoints = parseAsUtf8Bytes(value);
-        break;
+    if (!(inputInterpretation in inputInterpreters)) {
+      return <p>Error: Bad input method chosen</p>;
     }
+
+    let codepoints = inputInterpreters[inputInterpretation](value);
 
     return (
       <div className={classes.container}>
@@ -81,6 +70,7 @@ export default class App extends Component {
                       onClick={isValid ? (() => this.setState({ inputInterpretation: key })) : undefined}
                     >
                       {inputs[key]}
+                      { isValid && <p>{inputInterpreters[key](value).map(cp => String.fromCodePoint(cp)).join("")}</p> }
                     </li>
                   );
                 })
@@ -151,6 +141,13 @@ const inputValidators = {
       return false;
     }
   },
+};
+
+const inputInterpreters = {
+  raw: parseAsRawChars,
+  decimal: parseAsDecimal,
+  hex: parseAsHexidecimal,
+  utf8: parseAsUtf8Bytes,
 };
 
 function parseAsDecimal (value) {
@@ -250,19 +247,27 @@ function Char (props) {
 function Bytes (props) {
   if(isNaN(props.value)) return null;
 
-  const bytes = [...utf8.encode(String.fromCodePoint(props.value))].map(c => c.charCodeAt(0));
+  try {
+    const bytes = [...utf8.encode(String.fromCodePoint(props.value))].map(c => c.charCodeAt(0));
 
-  return <div className={classes.byte} style={{ marginRight: 4 }}>
-    <div>{bytes.map(b => <span>{b.toString(16).padStart(2,'0')}</span>)}</div>
-  </div>
+    return <div className={classes.byte} style={{ marginRight: 4 }}>
+      <div>{bytes.map((b, i) => <span key={i}>{b.toString(16).padStart(2,'0')}</span>)}</div>
+    </div>;
+  } catch (e) {
+    return;
+  }
 }
 
 function BinaryBytes (props) {
   if(isNaN(props.value)) return null;
 
-  const bytes = [...utf8.encode(String.fromCodePoint(props.value))].map(c => c.charCodeAt(0));
+  try {
+    const bytes = [...utf8.encode(String.fromCodePoint(props.value))].map(c => c.charCodeAt(0));
 
-  return <div className={classes.byte} style={{ marginRight: 4 }}>
-    <div>{bytes.map(b => <span>{b.toString(2).padStart(8,'0')}</span>)}</div>
-  </div>
+    return <div className={classes.byte} style={{ marginRight: 4 }}>
+      <div>{bytes.map((b, i) => <span key={i}>{b.toString(2).padStart(8,'0')}</span>)}</div>
+    </div>
+  } catch (e) {
+    return;
+  }
 }
