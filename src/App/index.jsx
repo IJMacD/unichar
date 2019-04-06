@@ -94,8 +94,6 @@ export default class App extends Component {
   }
 }
 
-const hexDigits = value => /^[\da-f ]*$/i.test(value);
-
 const inputValidators = {
   raw: () => true,
   decimal: value => {
@@ -103,23 +101,27 @@ const inputValidators = {
       return false;
     }
 
-    const raw = String(value).split(" ");
-    const codepoints = raw.map(x => parseInt(x, 10));
-
-    return codepoints.every(x => x >= 0 && x < 0x110000);
+    try {
+      const codepoints = parseAsDecimal(value);
+      return codepoints.every(x => x >= 0 && x < 0x110000);
+    } catch (e) {
+      return false;
+    }
   },
   hex: value => {
-    if (!hexDigits(value)) {
+    if (!/^ *((U\+)?[\da-f]+ *)*$/i.test(value)) {
       return false;
     }
 
-    const raw = String(value).split(" ");
-    const codepoints = raw.map(x => parseInt(x, 16));
-
-    return codepoints.every(x => x >= 0 && x < 0x110000);
+    try {
+      const codepoints = parseAsHexidecimal(value);
+      return codepoints.every(x => x >= 0 && x < 0x110000);
+    } catch (e) {
+      return false;
+    }
   },
   utf8: value => {
-    if (!hexDigits(value)) {
+    if (!/^[\da-f ]*$/i.test(value)) {
       return false;
     }
 
@@ -135,8 +137,9 @@ const inputValidators = {
         bytes.push(parseInt(raw.substr(i,2), 16));
       }
 
-      const byteString = bytes.map(x => String.fromCharCode(x)).join("");
+      const byteString = String.fromCharCode(...bytes);
       utf8.decode(byteString);
+
       return true;
     } catch (e) {
       return false;
@@ -152,7 +155,7 @@ const inputInterpreters = {
 };
 
 function parseAsDecimal (value) {
-  const raw = String(value).split(" ");
+  const raw = String(value).trim().replace(/ +/g, " ").split(" ");
 
   const codepoints = raw.map(x => parseInt(x, 10));
 
@@ -160,9 +163,9 @@ function parseAsDecimal (value) {
 }
 
 function parseAsHexidecimal (value) {
-  const raw = String(value).split(" ");
+  const raw = String(value).trim().replace(/ +/g, " ").split(" ");
 
-  const codepoints = raw.map(x => parseInt(x, 16));
+  const codepoints = raw.map(p => p.replace(/^U\+/, "")).map(x => parseInt(x, 16));
 
   return codepoints;
 }
@@ -202,7 +205,6 @@ function parseAsUtf8Bytes (value) {
 
     const codepoints = [...string].map(x => x.codePointAt(0));
 
-    console.log(codepoints);
     return codepoints;
   } catch (e) {
     return [];
