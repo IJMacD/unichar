@@ -47,7 +47,7 @@ export default class App extends Component {
           style={{border: isValid ? "" : "1px solid #f33"}}
         />
         <div className={classes.inOutContainer}>
-          <div style={{flex:1}}>
+          <div className={classes.inputContainer}>
             <h2 className={classes.sectionHeader}>Input Interpretation</h2>
             <ul className={classes.inputList}>
               {
@@ -77,7 +77,7 @@ export default class App extends Component {
               }
             </ul>
           </div>
-          <div style={{flex:1}}>
+          <div className={classes.outputContainer}>
             <h2 className={classes.sectionHeader}>Output</h2>
             { isValid &&
               <ul className={classes.output}>
@@ -220,7 +220,7 @@ function StringOutput (props) {
 
 function CodePoints (props) {
   return <div>
-    <div className={classes.label}>Code Points</div>
+    <p className={classes.label}>Code Points ({props.codepoints.length})</p>
     {
       props.codepoints.map((x,i) => <Char value={x} key={i} />)
     }
@@ -228,8 +228,11 @@ function CodePoints (props) {
 }
 
 function UTF8Bytes (props) {
+
+  const length = utf8.encode(String.fromCodePoint(...props.codepoints)).length;
+
   return <div>
-    <div className={classes.label}>UTF-8</div>
+    <p className={classes.label}>UTF-8 ({length} {length === 1 ? "byte" : "bytes"})</p>
     {
       props.codepoints.map((x,i) => <Bytes value={x} key={i} />)
     }
@@ -238,7 +241,7 @@ function UTF8Bytes (props) {
 
 function UTF8Binary (props) {
   return <div>
-    <div className={classes.label}>UTF-8</div>
+    <div className={classes.label}>UTF-8 Bits</div>
     {
       props.codepoints.map((x,i) => <BinaryBytes value={x} key={i} />)
     }
@@ -274,8 +277,8 @@ function BinaryBytes (props) {
   try {
     const bytes = [...utf8.encode(String.fromCodePoint(props.value))].map(c => c.charCodeAt(0));
 
-    return <div className={classes.byte} style={{ marginRight: 4 }}>
-      <div>{bytes.map((b, i) => <span key={i}>{b.toString(2).padStart(8,'0')}</span>)}</div>
+    return <div className={classes.byte + " " + classes.binaryByte} style={{ marginRight: 4 }}>
+      {bytes.map((b, i) => <span key={i}>{b.toString(2).padStart(8,'0')}</span>)}
     </div>
   } catch (e) {
     return;

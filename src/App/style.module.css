@@ -29,6 +29,12 @@
     flex-direction: row;
   }
 }
+.inputContainer {
+  flex: 0 0 320px;
+}
+.outputContainer {
+  flex: 1 1 auto;
+}
 .inputList {
   list-style: none;
   padding: 0;
@@ -93,4 +99,7 @@
 }
 .byte span:last-child {
   border-right: none;
+}
+.binaryByte {
+  font-size: 1rem;
 }
