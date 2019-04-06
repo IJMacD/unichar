@@ -8,7 +8,6 @@ export default class App extends Component {
     super(props);
 
     this.state = {
-      value: "A",
       inputInterpretation: "raw",
       ucd: null,
     };
@@ -17,20 +16,20 @@ export default class App extends Component {
 
   onChange = (e) => {
     const { value } = e.target;
-    this.setState({ value });
+    setURLFragment('input', value);
   }
 
   async componentDidMount () {
     const { default: ucd } = await import('ijmacd.ucd');
     this.setState({ ucd });
+
+    window.addEventListener("hashchange", () => this.forceUpdate());
   }
 
-  // componentDidMount () {
-  //   import('ijmacd.ucd').then(({ default: ucd }) => this.setState({ ucd }));
-  // }
-
   render () {
-    const { value, inputInterpretation, ucd } = this.state;
+    const { inputInterpretation, ucd } = this.state;
+
+    const { input: value = "" } = useURLFragment();
 
     const isValid = inputValidators[inputInterpretation](value);
 
@@ -298,4 +297,24 @@ function BinaryBytes (props) {
   } catch (e) {
     return;
   }
+}
+
+function useURLFragment () {
+  const q = new URLSearchParams(window.location.hash.substr(1));
+
+  const out = {};
+
+  for (const [key, value] of q.entries()) {
+    out[key] = value;
+  }
+
+  return out;
+}
+
+function setURLFragment (key, value) {
+  const q = new URLSearchParams(window.location.hash.substr(1));
+
+  q.set(key, value);
+
+  window.location.hash = q.toString();
 }
