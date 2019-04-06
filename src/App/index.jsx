@@ -10,6 +10,7 @@ export default class App extends Component {
     this.state = {
       value: "A",
       inputInterpretation: "raw",
+      ucd: null,
     };
 
   }
@@ -19,8 +20,17 @@ export default class App extends Component {
     this.setState({ value });
   }
 
+  async componentDidMount () {
+    const { default: ucd } = await import('ijmacd.ucd');
+    this.setState({ ucd });
+  }
+
+  // componentDidMount () {
+  //   import('ijmacd.ucd').then(({ default: ucd }) => this.setState({ ucd }));
+  // }
+
   render () {
-    const { value, inputInterpretation } = this.state;
+    const { value, inputInterpretation, ucd } = this.state;
 
     const isValid = inputValidators[inputInterpretation](value);
 
@@ -82,7 +92,7 @@ export default class App extends Component {
             { isValid &&
               <ul className={classes.output}>
                 <li><StringOutput codepoints={codepoints} /></li>
-                <li><CodePoints codepoints={codepoints} /></li>
+                <li><CodePoints codepoints={codepoints} ucd={ucd} /></li>
                 <li><UTF8Bytes codepoints={codepoints} /></li>
                 <li><UTF8Binary codepoints={codepoints} /></li>
               </ul>
@@ -224,7 +234,7 @@ function CodePoints (props) {
   return <div>
     <p className={classes.label}>Code Points ({props.codepoints.length})</p>
     {
-      props.codepoints.map((x,i) => <Char value={x} key={i} />)
+      props.codepoints.map((x,i) => <Char value={x} key={i} ucd={props.ucd} />)
     }
   </div>
 }
@@ -253,8 +263,11 @@ function UTF8Binary (props) {
 function Char (props) {
   if(isNaN(props.value)) return null;
 
-  return <div className={classes.char}>
-    <div>{String.fromCodePoint(props.value)}</div>
+  const char = String.fromCodePoint(props.value);
+  const title = props.ucd ? props.ucd.getName(char) : "";
+
+  return <div className={classes.char} title={title}>
+    <p>{char}</p>
     <span className={classes.label}>U+{Number(props.value).toString(16).toUpperCase()}</span>
   </div>
 }

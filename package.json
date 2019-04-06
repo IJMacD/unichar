@@ -14,6 +14,7 @@
   },
   "homepage": "https://ijmacd.github.io/unichar",
   "dependencies": {
+    "ijmacd.ucd": "^0.12.1",
     "react": "^16.8.6",
     "react-dom": "^16.8.6",
     "react-scripts": "2.1.8",
