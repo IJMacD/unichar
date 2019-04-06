@@ -81,7 +81,8 @@ export default class App extends Component {
             <h2 className={classes.sectionHeader}>Output</h2>
             { isValid &&
               <ul className={classes.output}>
-                <li><Characters codepoints={codepoints} /></li>
+                <li><StringOutput codepoints={codepoints} /></li>
+                <li><CodePoints codepoints={codepoints} /></li>
                 <li><UTF8Bytes codepoints={codepoints} /></li>
                 <li><UTF8Binary codepoints={codepoints} /></li>
               </ul>
@@ -208,9 +209,18 @@ function parseAsUtf8Bytes (value) {
   }
 }
 
-function Characters (props) {
+function StringOutput (props) {
   return <div>
-    <div className={classes.label}>Characters</div>
+    <div className={classes.label}>String</div>
+    {
+      String.fromCodePoint(...props.codepoints)
+    }
+  </div>
+}
+
+function CodePoints (props) {
+  return <div>
+    <div className={classes.label}>Code Points</div>
     {
       props.codepoints.map((x,i) => <Char value={x} key={i} />)
     }
