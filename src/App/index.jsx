@@ -91,9 +91,9 @@ export default class App extends Component {
             <h2 className={classes.sectionHeader}>Output</h2>
             { isValid &&
               <ul className={classes.output}>
-                <li><StringOutput codepoints={codepoints} /></li>
-                <li><CodePoints codepoints={codepoints} ucd={ucd} /></li>
-                <li><UTF8Bytes codepoints={codepoints} /></li>
+                <li><StringOutput codepoints={codepoints} onSelect={inputInterpretation === "raw" ? false : (value) => this.setState({ inputInterpretation: "raw", value })} /></li>
+                <li><CodePoints codepoints={codepoints} ucd={ucd} onSelect={inputInterpretation === "hex" ? false : (value) => this.setState({ inputInterpretation: "hex", value })} /></li>
+                <li><UTF8Bytes codepoints={codepoints} onSelect={inputInterpretation === "utf8" ? false : (value) => this.setState({ inputInterpretation: "utf8", value })} /></li>
                 <li><UTF8Binary codepoints={codepoints} /></li>
               </ul>
             }
@@ -222,33 +222,50 @@ function parseAsUtf8Bytes (value) {
 }
 
 function StringOutput (props) {
-  return <div>
-    <div className={classes.label}>String</div>
-    {
-      String.fromCodePoint(...props.codepoints)
-    }
-  </div>
+  const str = String.fromCodePoint(...props.codepoints);
+  return (
+    <div>
+      <p className={classes.label}>
+        String
+        { props.onSelect && <button className={classes.switchInput} onClick={() => props.onSelect(str)}>➔</button> }
+      </p>
+      { str }
+    </div>
+  );
 }
 
 function CodePoints (props) {
-  return <div>
-    <p className={classes.label}>Code Points ({props.codepoints.length})</p>
-    {
-      props.codepoints.map((x,i) => <Char value={x} key={i} ucd={props.ucd} />)
-    }
-  </div>
+  const cpList = props.codepoints.map(cp => `U+${cp.toString(16)}`).join(" ");
+
+  return (
+    <div>
+      <p className={classes.label}>
+        Code Points ({props.codepoints.length})
+        { props.onSelect && <button className={classes.switchInput} onClick={() => props.onSelect(cpList)}>➔</button> }
+      </p>
+      {
+        props.codepoints.map((x,i) => <Char value={x} key={i} ucd={props.ucd} />)
+      }
+    </div>
+  );
 }
 
 function UTF8Bytes (props) {
 
+  const bytes = [...utf8.encode(String.fromCodePoint(...props.codepoints))].map(b => b.charCodeAt(0).toString(16).padStart(2,"0"));
   const length = utf8.encode(String.fromCodePoint(...props.codepoints)).length;
 
-  return <div>
-    <p className={classes.label}>UTF-8 ({length} {length === 1 ? "byte" : "bytes"})</p>
-    {
-      props.codepoints.map((x,i) => <Bytes value={x} key={i} />)
-    }
-  </div>
+  return (
+    <div>
+      <p className={classes.label}>
+        UTF-8 ({length} {length === 1 ? "byte" : "bytes"})
+        { props.onSelect && <button className={classes.switchInput} onClick={() => props.onSelect(bytes)}>➔</button> }
+      </p>
+      {
+        props.codepoints.map((x,i) => <Bytes value={x} key={i} />)
+      }
+    </div>
+  );
 }
 
 function UTF8Binary (props) {

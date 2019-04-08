@@ -106,3 +106,9 @@
 .binaryByte {
   font-size: 1rem;
 }
+.switchInput {
+  border: 0;
+  background: none;
+  font-size: 1rem;
+  line-height: 1rem;
+}

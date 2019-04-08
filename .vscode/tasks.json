@@ -16,6 +16,11 @@
       "type": "npm",
       "script": "deploy",
       "problemMatcher": []
+    },
+    {
+      "type": "npm",
+      "script": "start",
+      "problemMatcher": []
     }
   ]
 }
