@@ -131,12 +131,12 @@ const inputValidators = {
     }
   },
   utf8: value => {
-    if (!/^[\da-f ]*$/i.test(value)) {
+    if (!/^[\da-f ,]*$/i.test(value)) {
       return false;
     }
 
     try {
-      const raw = String(value).replace(/ /g, "");
+      const raw = String(value).replace(/ ,/g, "");
       if (raw.length % 2) {
         return false;
       }
@@ -252,7 +252,7 @@ function CodePoints (props) {
 
 function UTF8Bytes (props) {
 
-  const bytes = [...utf8.encode(String.fromCodePoint(...props.codepoints))].map(b => b.charCodeAt(0).toString(16).padStart(2,"0"));
+  const bytes = [...utf8.encode(String.fromCodePoint(...props.codepoints))].map(b => b.charCodeAt(0).toString(16).padStart(2,"0")).join(" ");
   const length = utf8.encode(String.fromCodePoint(...props.codepoints)).length;
 
   return (
