@@ -136,7 +136,7 @@ const inputValidators = {
     }
 
     try {
-      const raw = String(value).replace(/ ,/g, "");
+      const raw = String(value).replace(/[ ,]/g, "");
       if (raw.length % 2) {
         return false;
       }
@@ -286,6 +286,7 @@ function Char (props) {
   return <div className={classes.char} title={title}>
     <p>{char}</p>
     <span className={classes.label}>U+{Number(props.value).toString(16).toUpperCase()}</span>
+    { props.ucd && <span className={classes.labelName}>{title}</span> }
   </div>
 }
 

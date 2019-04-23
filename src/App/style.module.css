@@ -86,6 +86,12 @@
 .label {
   font-size: 16px;
   color: #666;
+  display: block;
+}
+.labelName {
+  font-size: 8pt;
+  color: #666;
+  display: block;
 }
 .char {
   display: inline-block;
