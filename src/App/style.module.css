@@ -103,14 +103,20 @@
   border: 1px solid #d0d0d0;
   font-family: 'Courier New', Courier, monospace;
 }
-.byte span {
+.byte > span {
   border-right: 1px dashed #d0d0d0;
 }
-.byte span:last-child {
+.byte > span:last-child {
   border-right: none;
 }
 .binaryByte {
   font-size: 1rem;
+}
+.bytePrefix {
+  color: #999;
+}
+.byteData {
+  font-weight: bold;
 }
 .switchInput {
   border: 0;
