@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import utf8 from 'utf8';
+import he from 'he';
 
 import classes from './style.module.css';
 
@@ -36,6 +37,7 @@ export default class App extends Component {
 
     const inputs = {
       "raw": "Raw Characters",
+      "encoded": "Encoded String",
       "decimal": "Code Point List (Decimal)",
       "hex": "Code Point List (Hexidecimal)",
       "utf8": "UTF-8 Bytes",
@@ -95,6 +97,7 @@ export default class App extends Component {
                 <li><CodePoints codepoints={codepoints} ucd={ucd} onSelect={inputInterpretation === "hex" ? false : (value) => this.setState({ inputInterpretation: "hex", value })} /></li>
                 <li><UTF8Bytes codepoints={codepoints} onSelect={inputInterpretation === "utf8" ? false : (value) => this.setState({ inputInterpretation: "utf8", value })} /></li>
                 <li><UTF8Binary codepoints={codepoints} /></li>
+                <li><EncodedOutput codepoints={codepoints} onSelect={inputInterpretation === "encoded" ? false : (value) => this.setState({ inputInterpretation: "encoded", value })} /></li>
               </ul>
             }
           </div>
@@ -106,6 +109,7 @@ export default class App extends Component {
 
 const inputValidators = {
   raw: () => true,
+  encoded: () => true,
   decimal: value => {
     if(!/^[\d ]*$/.test(value)) {
       return false;
@@ -159,6 +163,7 @@ const inputValidators = {
 
 const inputInterpreters = {
   raw: parseAsRawChars,
+  encoded: parseAsEncoded,
   decimal: parseAsDecimal,
   hex: parseAsHexidecimal,
   utf8: parseAsUtf8Bytes,
@@ -196,6 +201,10 @@ function parseAsRawChars (value) {
   return codepoints;
 }
 
+function parseAsEncoded (value) {
+  return parseAsRawChars(he.decode(value));
+}
+
 function parseAsUtf8Bytes (value) {
   const raw = String(value).replace(/ /g, "");
   if (raw.length % 2) {
@@ -227,6 +236,19 @@ function StringOutput (props) {
     <div>
       <p className={classes.label}>
         String
+        { props.onSelect && <button className={classes.switchInput} onClick={() => props.onSelect(str)}>➔</button> }
+      </p>
+      { str }
+    </div>
+  );
+}
+
+function EncodedOutput (props) {
+  const str = he.encode(String.fromCodePoint(...props.codepoints), { useNamedReferences: true });
+  return (
+    <div>
+      <p className={classes.label}>
+        Encoded
         { props.onSelect && <button className={classes.switchInput} onClick={() => props.onSelect(str)}>➔</button> }
       </p>
       { str }
