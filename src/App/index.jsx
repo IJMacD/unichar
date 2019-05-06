@@ -5,12 +5,14 @@ import { StringOutput, CodePoints, UTF8Bytes, UTF8Binary, EncodedOutput } from '
 
 import classes from './style.module.css';
 
+const TITLE = "Unichar";
+
 export default class App extends Component {
   constructor (props) {
     super(props);
 
     this.state = {
-      value: "A",
+      value: getHash() || "",
       inputInterpretation: "raw",
       ucd: null,
     };
@@ -18,11 +20,30 @@ export default class App extends Component {
   }
 
   onChange = (e) => {
-    const { value } = e.target;
-    this.setState({ value });
+    this.setValue(e.target.value);
+  }
+
+  setValue (value, inputInterpretation=this.state.inputInterpretation) {
+    this.setState({ value, inputInterpretation }, () => {
+      window.location.hash = value;
+
+      const ii = input[this.state.inputInterpretation]
+      if(ii.isValid(value)) {
+        document.title = `${TITLE} - ${String.fromCodePoint(...ii.parse(value))}`;
+      }
+    });
   }
 
   async componentDidMount () {
+    window.addEventListener("hashchange", () => {
+      const value = getHash();
+      if (value !== this.state.value) {
+        const isCodePoint = /^U\+[0-9a-f]+/i.test(value);
+        const inputInterpretation = isCodePoint ? "hex" : "raw";
+        this.setState({ value, inputInterpretation });
+      }
+    });
+
     const { default: ucd } = await import('ijmacd.ucd');
     this.setState({ ucd });
   }
@@ -87,11 +108,11 @@ export default class App extends Component {
             <h2 className={classes.sectionHeader}>Output</h2>
             { isValid &&
               <ul className={classes.output}>
-                <li><StringOutput codepoints={codepoints} onSelect={inputInterpretation === "raw" ? false : (value) => this.setState({ inputInterpretation: "raw", value })} /></li>
-                <li><CodePoints codepoints={codepoints} ucd={ucd} onSelect={inputInterpretation === "hex" ? false : (value) => this.setState({ inputInterpretation: "hex", value: value.toUpperCase() })} /></li>
-                <li><UTF8Bytes codepoints={codepoints} onSelect={inputInterpretation === "utf8" ? false : (value) => this.setState({ inputInterpretation: "utf8", value })} /></li>
+                <li><StringOutput codepoints={codepoints} onSelect={inputInterpretation === "raw" ? false : (value) => this.setValue(value, "raw")} /></li>
+                <li><CodePoints codepoints={codepoints} ucd={ucd} onSelect={inputInterpretation === "hex" ? false : (value) => this.setValue(value.toUpperCase(), "hex")} /></li>
+                <li><UTF8Bytes codepoints={codepoints} onSelect={inputInterpretation === "utf8" ? false : (value) => this.setValue(value, "utf8")} /></li>
                 <li><UTF8Binary codepoints={codepoints} /></li>
-                <li><EncodedOutput codepoints={codepoints} onSelect={inputInterpretation === "encoded" ? false : (value) => this.setState({ inputInterpretation: "encoded", value })} /></li>
+                <li><EncodedOutput codepoints={codepoints} onSelect={inputInterpretation === "encoded" ? false : (value) => this.setValue(value, "encoded")} /></li>
               </ul>
             }
           </div>
@@ -99,4 +120,14 @@ export default class App extends Component {
       </div>
     );
   }
+}
+
+function getHash () {
+  const { hash } = window.location;
+
+  if (!hash) {
+    return null;
+  }
+
+  return decodeURIComponent(hash.substr(1));
 }
