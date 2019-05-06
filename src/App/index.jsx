@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
 
 import * as input from '../input';
-import { StringOutput, CodePoints, UTF8Bytes, UTF8Binary, EncodedOutput } from '../output';
 
 import classes from './style.module.css';
+import { TYPES, InputBlock } from '../nodes';
 
 const TITLE = "Unichar";
 
@@ -49,76 +49,54 @@ export default class App extends Component {
   }
 
   render () {
-    const { value, inputInterpretation, ucd } = this.state;
+    const tree = {
+      type: TYPES.INPUT,
+      children: [
+        { type: TYPES.INTERPRET_RAW, children: [
+          { type: TYPES.DISPLAY_STRING, children: [] },
+          { type: TYPES.DISPLAY_ENCODED, children: [] },
+          { type: TYPES.DISPLAY_CODEPOINTS, children: [] },
+          { type: TYPES.ENCODE_UTF8, children: [
+            { type: TYPES.RENDER_HEX, children: [] },
+          ] },
+        ] },
+        { type: TYPES.INTERPRET_ENCODED, children: [
+          { type: TYPES.DISPLAY_STRING, children: [] },
+          { type: TYPES.DISPLAY_ENCODED, children: [] },
+          { type: TYPES.DISPLAY_CODEPOINTS, children: [] },
+          { type: TYPES.ENCODE_UTF8, children: [
+            { type: TYPES.RENDER_HEX, children: [] },
+          ] },
+        ] },
+        { type: TYPES.INTERPRET_HEX, children: [
+          { type: TYPES.DISPLAY_STRING, children: [] },
+          { type: TYPES.DISPLAY_CODEPOINTS, children: [] },
+          { type: TYPES.ENCODE_UTF8, children: [
+            { type: TYPES.RENDER_HEX, children: [] },
+          ] },
+        ] },
+        { type: TYPES.INTERPRET_UTF8, children: [
+          { type: TYPES.DISPLAY_STRING, children: [] },
+          { type: TYPES.DISPLAY_ENCODED, children: [] },
+          { type: TYPES.DISPLAY_CODEPOINTS, children: [] },
+          { type: TYPES.ENCODE_UTF8, children: [
+            { type: TYPES.RENDER_HEX, children: [] },
+          ] },
+        ] },
+      ],
+    };
 
-    if (!(inputInterpretation in input)) {
-      return <p>Error: Bad input method chosen</p>;
+    let rootNode;
+
+    if (tree.type === TYPES.INPUT) {
+      rootNode = <InputBlock node={tree} />;
     }
-
-    /** @type {import('../input').Interpreter} */
-    const ii = input[inputInterpretation]
-
-    const isValid = ii.isValid(value);
-
-    let codepoints = ii.parse(value);
 
     return (
       <div className={classes.container}>
-        <input
-          type="text"
-          value={value}
-          onChange={this.onChange}
-          className={classes.input}
-          style={{border: isValid ? "" : "1px solid #f33"}}
-        />
-        <div className={classes.inOutContainer}>
-          <div className={classes.inputContainer}>
-            <h2 className={classes.sectionHeader}>Input Interpretation</h2>
-            <ul className={classes.inputList}>
-              {
-                Object.keys(input).map(key => {
-                  let classNames = classes.inputChoice;
-                  /** @type {import('../input').Interpreter} */
-                  const ij = input[key];
-                  const isValid = ij.isValid(value);
-
-                  if (!isValid) {
-                    classNames += " " + classes.invalidInput;
-                  }
-
-                  if (key === inputInterpretation) {
-                    classNames += " " + classes.selectedInput;
-                  }
-
-                  return (
-                    <li
-                      key={key}
-                      className={classNames}
-                      onClick={isValid ? (() => this.setState({ inputInterpretation: key })) : undefined}
-                    >
-                      {ij.label}
-                      { isValid && <p>{String.fromCodePoint(...ij.parse(value))}</p> }
-                    </li>
-                  );
-                })
-              }
-            </ul>
-          </div>
-          <div className={classes.outputContainer}>
-            <h2 className={classes.sectionHeader}>Output</h2>
-            { isValid &&
-              <ul className={classes.output}>
-                <li><StringOutput codepoints={codepoints} onSelect={inputInterpretation === "raw" ? false : (value) => this.setValue(value, "raw")} /></li>
-                <li><CodePoints codepoints={codepoints} ucd={ucd} onSelect={inputInterpretation === "hex" ? false : (value) => this.setValue(value.toUpperCase(), "hex")} /></li>
-                <li><UTF8Bytes codepoints={codepoints} onSelect={inputInterpretation === "utf8" ? false : (value) => this.setValue(value, "utf8")} /></li>
-                <li><UTF8Binary codepoints={codepoints} /></li>
-                <li><EncodedOutput codepoints={codepoints} onSelect={inputInterpretation === "encoded" ? false : (value) => this.setValue(value, "encoded")} /></li>
-              </ul>
-            }
-          </div>
-        </div>
+        {rootNode}
       </div>
-    );
+    )
   }
 }
 

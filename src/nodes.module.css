@@ -1,0 +1,60 @@
+.node-container {
+    display: flex;
+    margin-bottom: 3px;
+}
+
+.node {
+    border-radius: 5px;
+    box-shadow: 2px 5px 7px inset rgba(255,255,255,0.5);
+    width: 240px;
+    box-sizing: content-box;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+}
+
+.node-children {
+    flex: 1;
+    margin-left: 5px;
+}
+
+.input-node {
+    composes: node;
+    background: #55de55;
+}
+
+.node p {
+    margin: 0;
+    margin-bottom: 0.5em;
+}
+
+.input-node input {
+    border: 1px solid rgba(0,0,0,0.3);
+    border-radius: 2px;
+    font-size: 1.3rem;
+}
+
+.interpret-node {
+    composes: node;
+    background: #5555de;
+}
+
+.display-node {
+    composes: node;
+    background: #de5555;
+}
+
+.encode-node {
+    composes: node;
+    background: #da570c;
+}
+
+.render-node {
+    composes: node;
+    background: #ff6dc2;
+}
+
+.render-node span {
+    border: 1px dashed rgba(0,0,0,0.3);
+    padding: 3px;
+}

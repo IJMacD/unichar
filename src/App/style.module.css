@@ -1,10 +1,10 @@
 .container {
   margin: 20px auto 0;
-  width: 90%;
+  width: 95%;
 }
 @media screen and (min-width: 720px) {
   .container {
-    width: 70%;
+    width: 90%;
   }
 }
 .input {
