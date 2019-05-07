@@ -11,22 +11,44 @@
     padding: 10px;
     display: flex;
     flex-direction: column;
+    position: relative;
 }
 
 .node-children {
     flex: 1;
-    margin-left: 5px;
+    margin-left: 20px;
 }
 
-.input-node {
-    composes: node;
-    background: #55de55;
+.node-children .node::before {
+    content: "→";
+    position: absolute;
+    left: -18px;
+}
+
+.node label {
+    font-weight: bold;
+    font-size: 0.8em;
 }
 
 .node p {
     margin: 0;
     margin-bottom: 0.5em;
+    background: white;
+    border: 1px solid rgba(0,0,0,0.3);
+    padding: 1px;
+    cursor: pointer;
 }
+
+.node p:empty {
+    display: none;
+}
+
+.input-node {
+    composes: node;
+    background: #deffde;
+    border: 1px solid #55de55;
+}
+
 
 .input-node input {
     border: 1px solid rgba(0,0,0,0.3);
@@ -36,25 +58,30 @@
 
 .interpret-node {
     composes: node;
-    background: #5555de;
+    background: #dedeff;
+    border: 1px solid #5555de;
 }
 
 .display-node {
     composes: node;
-    background: #de5555;
+    background: #ffe7e7;
+    border: 1px solid #de5555;
 }
 
 .encode-node {
     composes: node;
-    background: #da570c;
+    background: #fff8c2;
+    border: 1px solid  #ffe053;
 }
 
 .render-node {
     composes: node;
-    background: #ff6dc2;
+    background: #ffcfeb;
+    border: 1px solid #ff6dc2;
 }
 
 .render-node span {
-    border: 1px dashed rgba(0,0,0,0.3);
+    border-right: 1px dashed rgba(0,0,0,0.3);
     padding: 3px;
+    display: inline-block;
 }

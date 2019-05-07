@@ -66,7 +66,7 @@ export const decimal = {
 export const hex = {
     label: "Code Point List (Hexidecimal)",
     isValid (value) {
-        if (!/^ *((U\+)?[\da-f]+ *)*$/i.test(value)) {
+        if (!/^ *((U\+)?[\da-f]+\s*)*$/i.test(value)) {
             return false;
         }
 
@@ -78,7 +78,7 @@ export const hex = {
         }
     },
     parse (value) {
-        const raw = String(value).trim().replace(/ +/g, " ").split(" ");
+        const raw = String(value).trim().replace(/\s+/g, " ").split(" ");
       
         const codepoints = raw.map(p => p.replace(/^U\+/, "")).map(x => parseInt(x, 16));
       
@@ -90,12 +90,12 @@ export const hex = {
 export const utf8 = {
     label: "UTF-8 Bytes",
     isValid (value) {
-        if (!/^[\da-f ,]*$/i.test(value)) {
+        if (!/^[\da-f\s,]*$/i.test(value)) {
             return false;
         }
 
         try {
-            const raw = String(value).replace(/[ ,]/g, "");
+            const raw = String(value).replace(/[\s,]/g, "");
             if (raw.length % 2) {
             return false;
             }
@@ -115,7 +115,7 @@ export const utf8 = {
         }
     },
     parse (value) {
-        const raw = String(value).replace(/ /g, "");
+        const raw = String(value).replace(/\s/g, "");
         if (raw.length % 2) {
             return [];
         }

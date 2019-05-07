@@ -26,47 +26,32 @@ export const TYPES = {
     RENDER_BASE64:      0x42,
 };
 
-export class Node {
-    /** @type {number} */
-    type;
-    /** @type {Node[]} */
-    children;
-}
-
 export function InputBlock (props) {
     const [ value, setValue ] = React.useState(props.value || "Hello");
 
     const { node } = props;
 
+    const type_map = {
+        [TYPES.INTERPRET_RAW]:      "raw",
+        [TYPES.INTERPRET_ENCODED]:  "encoded",
+        [TYPES.INTERPRET_DECIMAL]:  "decimal",
+        [TYPES.INTERPRET_HEX]:      "hex",
+        [TYPES.INTERPRET_UTF8]:     "utf8",
+    };
+
     return (
         <div className={classes['node-container']}>
             <div className={classes['input-node']}>
-                <p>Input</p>
-                <input
-                    type="text"
+                <label>Input</label>
+                <textarea
                     value={value}
                     onChange={e => setValue(e.target.value)}
                 />
             </div>
             <div className={classes['node-children']}>
                 {node.children.map(child => {
-                    let type;
-                    if (child.type === TYPES.INTERPRET_RAW) {
-                        type = "raw";
-                    }
-                    else if (child.type === TYPES.INTERPRET_ENCODED) {
-                        type = "encoded";
-                    }
-                    else if (child.type === TYPES.INTERPRET_HEX) {
-                        type = "hex";
-                    }
-                    else if (child.type === TYPES.INTERPRET_DECIMAL) {
-                        type = "decimal";
-                    }
-                    else if (child.type === TYPES.INTERPRET_UTF8) {
-                        type = "utf8";
-                    }
-                    return <InterpretBlock node={child} type={type} value={value} />;
+                    let type = type_map[child.type];
+                    return <InterpretBlock node={child} type={type} value={value} setValue={setValue} />;
                 })}
             </div>
         </div>
@@ -81,10 +66,10 @@ export function InterpretBlock (props) {
     return (
         <div className={classes['node-container']} style={{ opacity: isValid ? 1 : 0.5 }}>
             <div className={classes['interpret-node']}>
-                <p>{ii.label}</p>
+                <label>{ii.label}</label>
             </div>
             <div className={classes['node-children']}>
-                {props.node.children.map(child => <CPBlock node={child} codePoints={codePoints} />)}
+                {props.node.children.map(child => <CPBlock node={child} codePoints={codePoints} setValue={props.setValue} />)}
             </div>
         </div>
     );
@@ -95,9 +80,9 @@ export function CPBlock (props) {
         case TYPES.DISPLAY_STRING:
         case TYPES.DISPLAY_ENCODED:
         case TYPES.DISPLAY_CODEPOINTS:
-            return <DisplayBlock node={props.node} codePoints={props.codePoints} />;
+            return <DisplayBlock node={props.node} codePoints={props.codePoints} setValue={props.setValue} />;
         case TYPES.ENCODE_UTF8:
-            return <EncodeBlock node={props.node} codePoints={props.codePoints} />;
+            return <EncodeBlock node={props.node} codePoints={props.codePoints} setValue={props.setValue} />;
     }
 }
 
@@ -121,8 +106,8 @@ export function DisplayBlock (props) {
     return (
         <div className={classes['node-container']}>
             <div className={classes['display-node']}>
-                <p>{label}</p>
-                <p>{output}</p>
+                <label>{label}</label>
+                <p onClick={() => props.setValue(output)}>{output}</p>
             </div>
         </div>
     );
@@ -134,10 +119,10 @@ export function EncodeBlock (props) {
     return (
         <div className={classes['node-container']}>
             <div className={classes['encode-node']}>
-                <p>UTF-8</p>
+                <label>UTF-8</label>
             </div>
             <div className={classes['node-children']}>
-                {props.node.children.map(child => <RenderBlock node={child} bytes={bytes} />)}
+                {props.node.children.map(child => <RenderBlock node={child} bytes={bytes} setValue={props.setValue} />)}
             </div>
         </div>
     );
@@ -152,13 +137,16 @@ export function RenderBlock (props) {
     if (node.type === TYPES.RENDER_HEX) {
         label = "Hex";
         output = bytes.map((b, i) => <span key={i}>{b.toString(16).padStart(2,'0')}</span>);
+    } else if (node.type === TYPES.RENDER_BASE64) {
+        label = "Base64";
+        output = btoa(String.fromCharCode(...bytes));
     }
 
     return (
         <div className={classes['node-container']}>
             <div className={classes['render-node']}>
-                <p>{label}</p>
-                <p>{output}</p>
+                <label>{label}</label>
+                <p onClick={() => props.setValue(output)}>{output}</p>
             </div>
         </div>
     );
