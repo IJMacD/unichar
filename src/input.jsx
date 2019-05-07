@@ -88,7 +88,7 @@ export const hex = {
 
 /** @type {Interpreter} */
 export const utf8 = {
-    label: "UTF-8 Bytes",
+    label: "UTF-8 Hex",
     isValid (value) {
         if (!/^[\da-f\s,]*$/i.test(value)) {
             return false;
@@ -130,6 +130,82 @@ export const utf8 = {
         
         try {
             const string = u.decode(byteString);
+        
+            const codepoints = [...string].map(x => x.codePointAt(0));
+        
+            return codepoints;
+        } catch (e) {
+            return [];
+        }
+    }
+};
+
+/** @type {Interpreter} */
+export const base64_decode = {
+    label: "Base64 Decode",
+    isValid (value) {
+        try {
+            atob(value);
+            return true;
+        } catch (e) {
+            return false;
+        }
+    },
+    parse (value) {
+        try {
+            return [...atob(value)].map(x=> x.charCodeAt(0));
+        } catch (e) {
+            return [];
+        }
+    }
+};
+
+/** @type {Interpreter} */
+export const base64 = {
+    label: "Base64 Decode/UTF-8 Interpret",
+    isValid (value) {
+        try {
+            const byteString = atob(value);
+
+            const string = u.decode(byteString);
+
+            return true;
+        } catch (e) {
+            return false;
+        }
+    },
+    parse (value) {
+        try {
+            const byteString = atob(value);
+
+            const string = u.decode(byteString);
+        
+            const codepoints = [...string].map(x => x.codePointAt(0));
+
+            return codepoints;
+        } catch (e) {
+            return [];
+        }
+    }
+};
+
+/** @type {Interpreter} */
+export const utf8_bytes = {
+    label: "UTF-8 Bytes",
+    isValid (value) {
+        const raw = String(value).replace(/\s/g, "");
+        try {
+            u.decode(raw);
+        
+            return true;
+        } catch (e) {
+            return false;
+        }
+    },
+    parse (value) {
+        const raw = String(value).replace(/\s/g, "");
+        try {
+            const string = u.decode(raw);
         
             const codepoints = [...string].map(x => x.codePointAt(0));
         

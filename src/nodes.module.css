@@ -64,24 +64,31 @@
 
 .display-node {
     composes: node;
-    background: #ffe7e7;
+    background: #ffc4c4;
     border: 1px solid #de5555;
 }
 
 .encode-node {
     composes: node;
-    background: #fff8c2;
-    border: 1px solid  #ffe053;
+    background: #fff182;
+    border: 1px solid #ceb548;
+}
+
+.decode-node {
+    composes: node;
+    background: #82ffff;
+    border: 1px solid #48ceb1;
 }
 
 .render-node {
     composes: node;
-    background: #ffcfeb;
-    border: 1px solid #ff6dc2;
+    background: #eba8ff;
+    border: 1px solid #ff5aff;
 }
 
 .render-node span {
-    border-right: 1px dashed rgba(0,0,0,0.3);
+    border: 1px dashed rgba(0,0,0,0.3);
+    border-width: 0 1px 1px 0;
     padding: 3px;
     display: inline-block;
 }

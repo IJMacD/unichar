@@ -13,6 +13,8 @@ export const TYPES = {
     INTERPRET_DECIMAL:  0x12,
     INTERPRET_HEX:      0x13,
     INTERPRET_UTF8:     0x14,
+    INTERPRET_BASE64:   0x15,
+    INTERPRET_BASE64DECODE:   0x16,
     
     DISPLAY_STRING:     0x20,
     DISPLAY_CODEPOINTS: 0x21,
@@ -24,6 +26,8 @@ export const TYPES = {
     RENDER_HEX:         0x40,
     RENDER_BINARY:      0x41,
     RENDER_BASE64:      0x42,
+
+    DECODE_UTF8:        0x50,
 };
 
 export function InputBlock (props) {
@@ -37,6 +41,7 @@ export function InputBlock (props) {
         [TYPES.INTERPRET_DECIMAL]:  "decimal",
         [TYPES.INTERPRET_HEX]:      "hex",
         [TYPES.INTERPRET_UTF8]:     "utf8",
+        [TYPES.INTERPRET_BASE64]:   "base64",
     };
 
     return (
@@ -50,6 +55,10 @@ export function InputBlock (props) {
             </div>
             <div className={classes['node-children']}>
                 {node.children.map(child => {
+                    if (child.type === TYPES.INTERPRET_BASE64DECODE) {
+                        return <Base64DecodeBlock node={child} value={value} setValue={setValue}/>;
+                    }
+
                     let type = type_map[child.type];
                     return <InterpretBlock node={child} type={type} value={value} setValue={setValue} />;
                 })}
@@ -75,6 +84,23 @@ export function InterpretBlock (props) {
     );
 }
 
+export function Base64DecodeBlock (props) {
+    const ii = input.base64_decode;
+    const isValid = ii.isValid(props.value);
+    const codePoints = isValid ? ii.parse(props.value) : [];
+
+    return (
+        <div className={classes['node-container']} style={{ opacity: isValid ? 1 : 0.5 }}>
+            <div className={classes['encode-node']}>
+                <label>{ii.label}</label>
+            </div>
+            <div className={classes['node-children']}>
+                {props.node.children.map(child => <CPBlock node={child} codePoints={codePoints} setValue={props.setValue} />)}
+            </div>
+        </div>
+    );
+}
+
 export function CPBlock (props) {
     switch (props.node.type) {
         case TYPES.DISPLAY_STRING:
@@ -83,7 +109,13 @@ export function CPBlock (props) {
             return <DisplayBlock node={props.node} codePoints={props.codePoints} setValue={props.setValue} />;
         case TYPES.ENCODE_UTF8:
             return <EncodeBlock node={props.node} codePoints={props.codePoints} setValue={props.setValue} />;
+        case TYPES.RENDER_HEX:
+        case TYPES.RENDER_BASE64:
+            return <RenderBlock node={props.node} bytes={props.codePoints} setValue={props.setValue} />;
+        case TYPES.DECODE_UTF8:
+            return <DecodeBlock node={props.node} bytes={props.codePoints} setValue={props.setValue} />;
     }
+    return null;
 }
 
 export function DisplayBlock (props) {
@@ -119,10 +151,34 @@ export function EncodeBlock (props) {
     return (
         <div className={classes['node-container']}>
             <div className={classes['encode-node']}>
-                <label>UTF-8</label>
+                <label>UTF-8 Encode</label>
             </div>
             <div className={classes['node-children']}>
                 {props.node.children.map(child => <RenderBlock node={child} bytes={bytes} setValue={props.setValue} />)}
+            </div>
+        </div>
+    );
+}
+
+export function DecodeBlock (props) {
+    let codePoints = [];
+    let isValid = false;
+
+    try {
+        const byteString = props.bytes.map(x => String.fromCharCode(x)).join("");
+        const string = utf8.decode(byteString);
+
+        codePoints = [...string].map(x => x.codePointAt(0));
+        isValid = true;
+    } catch (e) {}
+  
+    return (
+        <div className={classes['node-container']} style={{ opacity: isValid ? 1 : 0.5 }}>
+            <div className={classes['decode-node']}>
+                <label>UTF-8 Decode</label>
+            </div>
+            <div className={classes['node-children']}>
+                {props.node.children.map(child => <CPBlock node={child} codePoints={codePoints} setValue={props.setValue} />)}
             </div>
         </div>
     );
@@ -133,20 +189,23 @@ export function RenderBlock (props) {
 
     let label;
     let output;
+    let text = bytes.map((b, i) => b.toString(16).padStart(2,'0')).join(" ");
 
     if (node.type === TYPES.RENDER_HEX) {
         label = "Hex";
+        text = bytes.map((b, i) => b.toString(16).padStart(2,'0')).join(" ");
         output = bytes.map((b, i) => <span key={i}>{b.toString(16).padStart(2,'0')}</span>);
     } else if (node.type === TYPES.RENDER_BASE64) {
         label = "Base64";
         output = btoa(String.fromCharCode(...bytes));
+        text = output;
     }
 
     return (
         <div className={classes['node-container']}>
             <div className={classes['render-node']}>
                 <label>{label}</label>
-                <p onClick={() => props.setValue(output)}>{output}</p>
+                <p onClick={() => props.setValue(text)}>{output}</p>
             </div>
         </div>
     );

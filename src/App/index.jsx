@@ -77,6 +77,14 @@ export default class App extends Component {
             { type: TYPES.RENDER_BASE64, children: [] },
           ] },
         ] },
+        { type: TYPES.INTERPRET_DECIMAL, children: [
+          { type: TYPES.DISPLAY_STRING, children: [] },
+          { type: TYPES.DISPLAY_CODEPOINTS, children: [] },
+          { type: TYPES.ENCODE_UTF8, children: [
+            { type: TYPES.RENDER_HEX, children: [] },
+            { type: TYPES.RENDER_BASE64, children: [] },
+          ] },
+        ] },
         { type: TYPES.INTERPRET_UTF8, children: [
           { type: TYPES.DISPLAY_STRING, children: [] },
           { type: TYPES.DISPLAY_ENCODED, children: [] },
@@ -84,6 +92,17 @@ export default class App extends Component {
           { type: TYPES.ENCODE_UTF8, children: [
             { type: TYPES.RENDER_HEX, children: [] },
           ] },
+        ] },
+        { type: TYPES.INTERPRET_BASE64DECODE, children: [
+          { type: TYPES.RENDER_HEX, children: [] },
+          { type: TYPES.RENDER_BASE64, children: [] },
+          { type: TYPES.DECODE_UTF8, children: [
+            { type: TYPES.DISPLAY_STRING },
+            { type: TYPES.DISPLAY_CODEPOINTS },
+          ] },
+        ] },
+        { type: TYPES.INTERPRET_BASE64, children: [
+          { type: TYPES.DISPLAY_STRING, children: [] },
         ] },
       ],
     };
