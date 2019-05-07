@@ -70,7 +70,11 @@ export default class App extends Component {
           ] },
         ] },
         { type: TYPES.INTERPRET_HEX, children: [
-          { type: TYPES.DISPLAY_STRING, children: [] },
+          { type: TYPES.DISPLAY_STRING, children: [
+            { type: TYPES.INTERPRET_UTF8, children: [
+              { type: TYPES.DISPLAY_STRING, children: [] },
+            ] },
+          ] },
           { type: TYPES.DISPLAY_CODEPOINTS, children: [] },
           { type: TYPES.ENCODE_UTF8, children: [
             { type: TYPES.RENDER_HEX, children: [] },
@@ -86,23 +90,24 @@ export default class App extends Component {
           ] },
         ] },
         { type: TYPES.INTERPRET_UTF8, children: [
-          { type: TYPES.DISPLAY_STRING, children: [] },
+          { type: TYPES.DISPLAY_STRING, children: [
+            { type: TYPES.INTERPRET_UTF8, children: [
+              { type: TYPES.DISPLAY_STRING, children: [] },
+            ] },
+          ] },
           { type: TYPES.DISPLAY_ENCODED, children: [] },
           { type: TYPES.DISPLAY_CODEPOINTS, children: [] },
           { type: TYPES.ENCODE_UTF8, children: [
             { type: TYPES.RENDER_HEX, children: [] },
           ] },
         ] },
-        { type: TYPES.INTERPRET_BASE64DECODE, children: [
+        { type: TYPES.DECODE_BASE64, children: [
           { type: TYPES.RENDER_HEX, children: [] },
           { type: TYPES.RENDER_BASE64, children: [] },
           { type: TYPES.DECODE_UTF8, children: [
-            { type: TYPES.DISPLAY_STRING },
-            { type: TYPES.DISPLAY_CODEPOINTS },
+            { type: TYPES.DISPLAY_STRING, children: [] },
+            { type: TYPES.DISPLAY_CODEPOINTS, children: [] },
           ] },
-        ] },
-        { type: TYPES.INTERPRET_BASE64, children: [
-          { type: TYPES.DISPLAY_STRING, children: [] },
         ] },
       ],
     };

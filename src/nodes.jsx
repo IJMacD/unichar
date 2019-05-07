@@ -14,7 +14,6 @@ export const TYPES = {
     INTERPRET_HEX:      0x13,
     INTERPRET_UTF8:     0x14,
     INTERPRET_BASE64:   0x15,
-    INTERPRET_BASE64DECODE:   0x16,
     
     DISPLAY_STRING:     0x20,
     DISPLAY_CODEPOINTS: 0x21,
@@ -28,21 +27,13 @@ export const TYPES = {
     RENDER_BASE64:      0x42,
 
     DECODE_UTF8:        0x50,
+    DECODE_BASE64:      0x51,
 };
 
 export function InputBlock (props) {
     const [ value, setValue ] = React.useState(props.value || "Hello");
 
     const { node } = props;
-
-    const type_map = {
-        [TYPES.INTERPRET_RAW]:      "raw",
-        [TYPES.INTERPRET_ENCODED]:  "encoded",
-        [TYPES.INTERPRET_DECIMAL]:  "decimal",
-        [TYPES.INTERPRET_HEX]:      "hex",
-        [TYPES.INTERPRET_UTF8]:     "utf8",
-        [TYPES.INTERPRET_BASE64]:   "base64",
-    };
 
     return (
         <div className={classes['node-container']}>
@@ -54,44 +45,33 @@ export function InputBlock (props) {
                 />
             </div>
             <div className={classes['node-children']}>
-                {node.children.map(child => {
-                    if (child.type === TYPES.INTERPRET_BASE64DECODE) {
-                        return <Base64DecodeBlock node={child} value={value} setValue={setValue}/>;
-                    }
-
-                    let type = type_map[child.type];
-                    return <InterpretBlock node={child} type={type} value={value} setValue={setValue} />;
-                })}
+                {node.children.map(child => <InterpretBlock node={child} value={value} setValue={setValue} />)}
             </div>
         </div>
     );
 }
 
 export function InterpretBlock (props) {
-    const ii = input[props.type];
+    const type_map = {
+        [TYPES.INTERPRET_RAW]:      "raw",
+        [TYPES.INTERPRET_ENCODED]:  "encoded",
+        [TYPES.INTERPRET_DECIMAL]:  "decimal",
+        [TYPES.INTERPRET_HEX]:      "hex",
+        [TYPES.INTERPRET_UTF8]:     "utf8",
+        [TYPES.INTERPRET_BASE64]:   "base64",
+        [TYPES.DECODE_BASE64]:      "base64_decode",
+    };
+
+    let type = type_map[props.node.type];
+    const ii = input[type];
     const isValid = ii.isValid(props.value);
     const codePoints = isValid ? ii.parse(props.value) : [];
+    const className = props.node.type === TYPES.DECODE_BASE64 ?
+        classes['encode-node'] : classes['interpret-node'];
 
     return (
         <div className={classes['node-container']} style={{ opacity: isValid ? 1 : 0.5 }}>
-            <div className={classes['interpret-node']}>
-                <label>{ii.label}</label>
-            </div>
-            <div className={classes['node-children']}>
-                {props.node.children.map(child => <CPBlock node={child} codePoints={codePoints} setValue={props.setValue} />)}
-            </div>
-        </div>
-    );
-}
-
-export function Base64DecodeBlock (props) {
-    const ii = input.base64_decode;
-    const isValid = ii.isValid(props.value);
-    const codePoints = isValid ? ii.parse(props.value) : [];
-
-    return (
-        <div className={classes['node-container']} style={{ opacity: isValid ? 1 : 0.5 }}>
-            <div className={classes['encode-node']}>
+            <div className={className}>
                 <label>{ii.label}</label>
             </div>
             <div className={classes['node-children']}>
@@ -141,6 +121,9 @@ export function DisplayBlock (props) {
                 <label>{label}</label>
                 <p onClick={() => props.setValue(output)}>{output}</p>
             </div>
+            <div className={classes['node-children']}>
+                {props.node.children.map(child => <InterpretBlock node={child} value={output} setValue={props.setValue} />)}
+            </div>
         </div>
     );
 }
@@ -174,7 +157,7 @@ export function DecodeBlock (props) {
   
     return (
         <div className={classes['node-container']} style={{ opacity: isValid ? 1 : 0.5 }}>
-            <div className={classes['decode-node']}>
+            <div className={classes['interpret-node']}>
                 <label>UTF-8 Decode</label>
             </div>
             <div className={classes['node-children']}>
