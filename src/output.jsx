@@ -4,6 +4,21 @@ import he from 'he';
 
 import classes from './App/style.module.css';
 
+/**
+ * @param {string} string
+ */
+function copyText (string) {
+  const el = document.createElement("textarea");
+  el.value = string;
+  document.body.appendChild(el);
+  el.select();
+  document.execCommand("copy");
+  document.body.removeChild(el);
+}
+
+/**
+ * @param {{ codepoints: number[]; onSelect: (text: string) => void; }} props
+ */
 export function StringOutput (props) {
   const str = String.fromCodePoint(...props.codepoints);
   return (
@@ -11,12 +26,16 @@ export function StringOutput (props) {
       <p className={classes.label}>
         String
         { props.onSelect && <button className={classes.switchInput} onClick={() => props.onSelect(str)}>➔</button> }
+        <button className={classes.switchInput} onClick={() => copyText(str)}>📋</button>
       </p>
       { str }
     </div>
   );
 }
 
+/**
+ * @param {{ codepoints: number[]; onSelect: (text: string) => void; }} props
+ */
 export function EncodedOutput (props) {
   const str = he.encode(String.fromCodePoint(...props.codepoints), { useNamedReferences: true });
   return (
@@ -30,6 +49,9 @@ export function EncodedOutput (props) {
   );
 }
 
+/**
+ * @param {{ codepoints: number[]; onSelect: (text: string) => void; ucd: any; }} props
+ */
 export function CodePoints (props) {
   const cpList = props.codepoints.map(cp => `U+${cp.toString(16)}`).join(" ");
 
@@ -46,6 +68,9 @@ export function CodePoints (props) {
   );
 }
 
+/**
+ * @param {{ codepoints: number[]; onSelect: (text: string) => void; }} props
+ */
 export function UTF8Bytes (props) {
 
   const bytes = [...utf8.encode(String.fromCodePoint(...props.codepoints))].map(b => b.charCodeAt(0).toString(16).padStart(2,"0")).join(" ");
@@ -64,6 +89,9 @@ export function UTF8Bytes (props) {
   );
 }
 
+/**
+ * @param {{ codepoints: number[]; }} props
+ */
 export function UTF8Binary (props) {
   return <div>
     <div className={classes.label}>UTF-8 Bits</div>
@@ -73,6 +101,9 @@ export function UTF8Binary (props) {
   </div>
 }
 
+/**
+ * @param {{ value: number; ucd: { getName: (char: string) => string; }; }} props
+ */
 function Char (props) {
   if(isNaN(props.value)) return null;
 
@@ -83,9 +114,12 @@ function Char (props) {
     <p>{char}</p>
     <span className={classes.label}>U+{Number(props.value).toString(16).toUpperCase()}</span>
     { props.ucd && <span className={classes.labelName}>{title}</span> }
-  </div>
+  </div>;
 }
 
+/**
+ * @param {{ value: number; }} props
+ */
 function Bytes (props) {
   if(isNaN(props.value)) return null;
 
@@ -100,6 +134,9 @@ function Bytes (props) {
   }
 }
 
+/**
+ * @param {{ value: number; }} props
+ */
 function BinaryBytes (props) {
   if(isNaN(props.value)) return null;
 
