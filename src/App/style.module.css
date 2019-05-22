@@ -80,6 +80,9 @@
   border: 1px solid #CCC;
   text-align: center;
 }
+.output div {
+  word-break: break-word;
+}
 .output p {
   margin: 0;
 }

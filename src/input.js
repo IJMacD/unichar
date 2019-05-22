@@ -66,7 +66,7 @@ export const decimal = {
 export const hex = {
     label: "Code Point List (Hexidecimal)",
     isValid (value) {
-        if (!/^ *((U\+)?[\da-f]+ *)*$/i.test(value)) {
+        if (!/^ *((U\+)?[\da-f-]+,? *)*$/i.test(value)) {
             return false;
         }
 
@@ -78,9 +78,20 @@ export const hex = {
         }
     },
     parse (value) {
-        const raw = String(value).trim().replace(/ +/g, " ").split(" ");
+        const raw = String(value).trim().replace(/[,\s]+/g, " ");
+
+        const expanded = raw.replace(/([\da-f]+)-([\da-f]+)/g, (s, a, b) => {
+            const start = parseInt(a, 16);
+            const end = parseInt(b, 16);
+
+            if (start >= end) {
+                throw RangeError(`Start must be less than end: ${start} < ${end}`);
+            }
+
+            return Array(end - start + 1).fill(0).map((x,i) => (i + start).toString(16)).join(" ");
+        }).split(" ");
       
-        const codepoints = raw.map(p => p.replace(/^U\+/, "")).map(x => parseInt(x, 16));
+        const codepoints = expanded.map(p => p.replace(/^U\+/, "")).map(x => parseInt(x, 16));
       
         return codepoints;
     },

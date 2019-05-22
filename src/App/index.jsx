@@ -60,7 +60,7 @@ export default class App extends Component {
 
     const isValid = ii.isValid(value);
 
-    let codepoints = ii.parse(value);
+    let codepoints = isValid ? ii.parse(value) : [];
 
     return (
       <div className={classes.container}>
