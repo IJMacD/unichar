@@ -81,29 +81,33 @@ export default class App extends Component {
             <ul className={classes.inputList}>
               {
                 Object.keys(input).map(key => {
-                  let classNames = classes.inputChoice;
-                  /** @type {import('../input').Interpreter} */
-                  const ij = input[key];
-                  const isValid = ij.isValid(value);
+                  try {
+                    let classNames = classes.inputChoice;
+                    /** @type {import('../input').Interpreter} */
+                    const ij = input[key];
+                    const isValid = ij.isValid(value);
 
-                  if (!isValid) {
-                    classNames += " " + classes.invalidInput;
+                    if (!isValid) {
+                      classNames += " " + classes.invalidInput;
+                    }
+
+                    if (key === inputInterpretation) {
+                      classNames += " " + classes.selectedInput;
+                    }
+
+                    return (
+                      <li
+                        key={key}
+                        className={classNames}
+                        onClick={isValid ? (() => this.setState({ inputInterpretation: key })) : undefined}
+                      >
+                        {ij.label}
+                        { isValid && <p>{String.fromCodePoint(...ij.parse(value))}</p> }
+                      </li>
+                    );
+                  } catch (e) {
+                    return "Error decoding value";
                   }
-
-                  if (key === inputInterpretation) {
-                    classNames += " " + classes.selectedInput;
-                  }
-
-                  return (
-                    <li
-                      key={key}
-                      className={classNames}
-                      onClick={isValid ? (() => this.setState({ inputInterpretation: key })) : undefined}
-                    >
-                      {ij.label}
-                      { isValid && <p>{String.fromCodePoint(...ij.parse(value))}</p> }
-                    </li>
-                  );
                 })
               }
             </ul>
@@ -130,7 +134,7 @@ function getHash () {
   const { hash } = window.location;
 
   if (!hash) {
-    return null;
+    return "";
   }
 
   return decodeURIComponent(hash.substr(1));

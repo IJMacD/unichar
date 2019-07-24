@@ -34,7 +34,7 @@ export const encoded = {
     label: "Encoded String",
     isValid: () => true,
     parse (value) {
-        return raw.parse(he.decode(value));
+        return raw.parse(he.decode(String(value)));
     },
 };
 
