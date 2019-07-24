@@ -1,0 +1,22 @@
+.UCDSearch {
+    position: relative;
+    text-align: right;
+}
+.UCDSearch-list {
+    position: absolute;
+    right: 0;
+    background: white;
+    padding: 8px;
+    list-style: none;
+    border: 1px solid rgba(0,0,0,0.3);
+    box-shadow: 2px 2px 4px 1px rgba(0,0,0,0.7);
+}
+.UCDSearch-list:empty {
+    display: none;
+}
+.UCDSearch-list li {
+    cursor: pointer;
+}
+.UCDSearch-list li:hover {
+    background: rgba(0,0,0,0.3);
+}

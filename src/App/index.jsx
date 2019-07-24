@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 
 import * as input from '../input';
 import { StringOutput, CodePoints, UTF8Bytes, UTF8Binary, EncodedOutput } from '../output';
+import UCDSearch from '../UCDSearch';
 
 import classes from './style.module.css';
 
@@ -45,6 +46,8 @@ export default class App extends Component {
     });
 
     const { default: ucd } = await import('ijmacd.ucd');
+    // prime unicode data
+    ucd.getName("a");
     this.setState({ ucd });
   }
 
@@ -71,6 +74,7 @@ export default class App extends Component {
           className={classes.input}
           style={{border: isValid ? "" : "1px solid #f33"}}
         />
+        { ucd && <UCDSearch ucd={ucd} onChoose={cp => this.setState({ value: value + String.fromCodePoint(cp) })} /> }
         <div className={classes.inOutContainer}>
           <div className={classes.inputContainer}>
             <h2 className={classes.sectionHeader}>Input Interpretation</h2>
