@@ -80,7 +80,7 @@ export const hex = {
     parse (value) {
         const raw = String(value).trim().replace(/[,\s]+/g, " ");
 
-        const expanded = raw.replace(/([\da-f]+)-([\da-f]+)/g, (s, a, b) => {
+        const expanded = raw.replace(/([\da-f]+)-([\da-f]+)/gi, (s, a, b) => {
             const start = parseInt(a, 16);
             const end = parseInt(b, 16);
 
@@ -114,7 +114,7 @@ export const utf8 = {
             const bytes = [];
 
             for (let i = 0; i < raw.length; i += 2) {
-            bytes.push(parseInt(raw.substr(i,2), 16));
+                bytes.push(parseInt(raw.substr(i,2), 16));
             }
 
             const byteString = String.fromCharCode(...bytes);
