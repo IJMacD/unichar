@@ -45,6 +45,8 @@ export default class App extends Component {
       }
     });
 
+    this.inputRef.focus();
+
     const { default: ucd } = await import('ijmacd.ucd');
     // prime unicode data
     ucd.getName("a");
@@ -73,6 +75,7 @@ export default class App extends Component {
           onChange={this.onChange}
           className={classes.input}
           style={{border: isValid ? "" : "1px solid #f33"}}
+          ref={ref => this.inputRef = ref}
         />
         { ucd && <UCDSearch ucd={ucd} onChoose={cp => this.setState({ value: value + String.fromCodePoint(cp) })} /> }
         <div className={classes.inOutContainer}>
