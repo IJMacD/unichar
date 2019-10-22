@@ -48,8 +48,10 @@ export default class App extends Component {
     this.inputRef.focus();
 
     const { default: ucd } = await import('ijmacd.ucd');
+
     // prime unicode data
     ucd.getName("a");
+
     this.setState({ ucd });
   }
 
