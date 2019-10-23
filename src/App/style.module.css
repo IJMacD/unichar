@@ -49,6 +49,7 @@
   margin: 4px;
   padding: 8px;
   border: 1px solid #CCC;
+  word-break: break-all;
 }
 .inputChoice:hover {
   background: rgb(255, 255, 175);
