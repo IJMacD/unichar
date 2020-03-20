@@ -4707,10 +4707,10 @@ ignore@^4.0.6:
   resolved "https://registry.yarnpkg.com/ignore/-/ignore-4.0.6.tgz#750e3db5862087b4737ebac8207ffd1ef27b25fc"
   integrity sha512-cyFDKrqc/YdcWFniJhzI42+AzS+gNwmUzOSFcRCQYwySuBBBy/KjuxWLZ/FHEH6Moq1NizMOBWyTcv8O4OZIMg==
 
-ijmacd.ucd@0.12.3:
-  version "0.12.3"
-  resolved "https://registry.yarnpkg.com/ijmacd.ucd/-/ijmacd.ucd-0.12.3.tgz#b830a422c388c067ca77a19fc9c951a1863f8348"
-  integrity sha512-vCGcSKQRM7S0VJCOqAIE/Pq86AfVSiTn9BgR91ir82QGfShE4lVjKfGtBilW45wrbDCTbGaLO/LrJdQFKZxbuA==
+ijmacd.ucd@0.13.0:
+  version "0.13.0"
+  resolved "https://registry.yarnpkg.com/ijmacd.ucd/-/ijmacd.ucd-0.13.0.tgz#9719fe847d0da48d4c68a86def7bcf284ed5431d"
+  integrity sha512-uxh+Anz5otC+AoBpJbKLEiBPOwICNa38hytCMRmw3BGiarkbVHVNu6In+3BOhO5k3Qnd3+uqU6bdQlLLOXldUA==
 
 immer@1.10.0:
   version "1.10.0"
