@@ -1,9 +1,16 @@
-import React from 'react';
+import { useState, useEffect } from 'react';
 
 import "./UCDSearch.css";
 
-export default function ({ ucd, onChoose }) {
-    const [ value, setValue ] = React.useState("");
+export default function ({ onChoose }) {
+    const [ value, setValue ] = useState("");
+    const [ ucd, setUCD ] = useState(null);
+
+    useEffect(() => {
+        if (value && !ucd) {
+            fetchUCD();
+        }
+    }, [ucd, value]);
 
     const results = value.length >= 3 ? searchUCD(ucd, value) : [];
 
@@ -17,6 +24,15 @@ export default function ({ ucd, onChoose }) {
             </ul>
         </div>
     )
+
+    async function fetchUCD() {
+        let { default: ucd } = await import('ijmacd.ucd');
+
+        // prime unicode data
+        ucd.getName("a");
+
+        setUCD(ucd);
+    }
 }
 
 /**
@@ -28,6 +44,10 @@ export default function ({ ucd, onChoose }) {
 function searchUCD (ucd, value, limit=100) {
     const out = [];
     const found = [];
+
+    if (!ucd) {
+        return [];
+    }
 
     try {
         const reg = new RegExp(value, "i");

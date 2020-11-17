@@ -17,7 +17,6 @@ export default class App extends Component {
     this.state = {
       value: getHash() || "",
       inputInterpretation: "raw",
-      ucd: null,
     };
 
   }
@@ -48,13 +47,6 @@ export default class App extends Component {
     });
 
     this.inputRef.focus();
-
-    const { default: ucd } = await import('ijmacd.ucd');
-
-    // prime unicode data
-    ucd.getName("a");
-
-    this.setState({ ucd });
   }
 
   /**
@@ -79,7 +71,7 @@ export default class App extends Component {
       value += codePoint < 0xffff ? "\\u" + codePoint.toString(16).padStart(4, "0") : `\\u{${codePoint.toString(16)}}`;
     }
 
-    this.setState({ value });
+    this.setValue(value);
   }
 
   render () {
@@ -106,7 +98,7 @@ export default class App extends Component {
           style={{border: isValid ? "" : "1px solid #f33"}}
           ref={ref => this.inputRef = ref}
         />
-        { ucd && <UCDSearch ucd={ucd} onChoose={cp => this.insertCodePoint(cp)} /> }
+        <UCDSearch onChoose={cp => this.insertCodePoint(cp)} />
         <div className={classes.inOutContainer}>
           <div className={classes.inputContainer}>
             <h2 className={classes.sectionHeader}>Input Interpretation</h2>
