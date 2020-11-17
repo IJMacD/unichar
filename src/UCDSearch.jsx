@@ -9,7 +9,7 @@ export default function ({ ucd, onChoose }) {
 
     return (
         <div className="UCDSearch">
-            <label>Search <input type="search" value={value} onChange={e => setValue(e.target.value)} /></label>
+            <input type="search" value={value} onChange={e => setValue(e.target.value)} placeholder="Search" />
             <ul className="UCDSearch-list">
                 { results.map(r => (
                     <li key={r.codePoint} onClick={() => { setValue(""); onChoose(r.codePoint); }}>{r.name} {String.fromCodePoint(r.codePoint)}</li>

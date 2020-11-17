@@ -1,4 +1,6 @@
 import React, { Component } from 'react';
+import utf8 from 'utf8';
+import he from 'he';
 
 import * as input from '../input';
 import { StringOutput, CodePoints, UTF8Bytes, UTF8Binary, EncodedOutput } from '../output';
@@ -55,6 +57,31 @@ export default class App extends Component {
     this.setState({ ucd });
   }
 
+  /**
+   * @param {number} codePoint
+   */
+  insertCodePoint (codePoint) {
+    let { value, inputInterpretation }  = this.state;
+
+    if (inputInterpretation === "raw") {
+      value += String.fromCodePoint(codePoint);
+    } else if (inputInterpretation === "hex") {
+      value += " " + codePoint.toString(16);
+    } else if (inputInterpretation === "decimal") {
+      value += " " + codePoint.toString(10);
+    } else if (inputInterpretation === "utf8") {
+      const str = String.fromCodePoint(codePoint);
+      value += " " + [...utf8.encode(str)].map(c => c.charCodeAt(0).toString(16).padStart(2, "0")).join(" ");
+    } else if (inputInterpretation === "encoded") {
+      const str = String.fromCodePoint(codePoint);
+      value += he.encode(str);
+    } else if (inputInterpretation === "escaped") {
+      value += codePoint < 0xffff ? "\\u" + codePoint.toString(16).padStart(4, "0") : `\\u{${codePoint.toString(16)}}`;
+    }
+
+    this.setState({ value });
+  }
+
   render () {
     const { value, inputInterpretation, ucd } = this.state;
 
@@ -79,7 +106,7 @@ export default class App extends Component {
           style={{border: isValid ? "" : "1px solid #f33"}}
           ref={ref => this.inputRef = ref}
         />
-        { ucd && <UCDSearch ucd={ucd} onChoose={cp => this.setState({ value: value + String.fromCodePoint(cp) })} /> }
+        { ucd && <UCDSearch ucd={ucd} onChoose={cp => this.insertCodePoint(cp)} /> }
         <div className={classes.inOutContainer}>
           <div className={classes.inputContainer}>
             <h2 className={classes.sectionHeader}>Input Interpretation</h2>
@@ -121,11 +148,11 @@ export default class App extends Component {
             <h2 className={classes.sectionHeader}>Output</h2>
             { isValid &&
               <ul className={classes.output}>
-                <li><StringOutput codepoints={codepoints} onSelect={inputInterpretation === "raw" ? false : (value) => this.setValue(value, "raw")} /></li>
-                <li><CodePoints codepoints={codepoints} ucd={ucd} onSelect={inputInterpretation === "hex" ? false : (value) => this.setValue(value.toUpperCase(), "hex")} /></li>
-                <li><UTF8Bytes codepoints={codepoints} onSelect={inputInterpretation === "utf8" ? false : (value) => this.setValue(value, "utf8")} /></li>
+                <li><StringOutput codepoints={codepoints} onSelect={inputInterpretation === "raw" ? null : (value) => this.setValue(value, "raw")} /></li>
+                <li><CodePoints codepoints={codepoints} ucd={ucd} onSelect={inputInterpretation === "hex" ? null : (value) => this.setValue(value.toUpperCase(), "hex")} /></li>
+                <li><UTF8Bytes codepoints={codepoints} onSelect={inputInterpretation === "utf8" ? null : (value) => this.setValue(value, "utf8")} /></li>
                 <li><UTF8Binary codepoints={codepoints} /></li>
-                <li><EncodedOutput codepoints={codepoints} onSelect={inputInterpretation === "encoded" ? false : (value) => this.setValue(value, "encoded")} /></li>
+                <li><EncodedOutput codepoints={codepoints} onSelect={inputInterpretation === "encoded" ? null : (value) => this.setValue(value, "encoded")} /></li>
               </ul>
             }
           </div>
