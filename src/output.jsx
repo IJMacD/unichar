@@ -1,6 +1,7 @@
 import React from 'react';
 import utf8 from 'utf8';
 import he from 'he';
+import * as formats from './formats';
 
 import classes from './App/style.module.css';
 
@@ -50,20 +51,29 @@ export function EncodedOutput (props) {
 }
 
 /**
- * @param {{ codepoints: number[]; onSelect: (text: string) => void; ucd: any; }} props
+ * @param {{ codepoints: number[]; onSelect: (text: string) => void; }} props
  */
 export function CodePoints (props) {
   const cpList = props.codepoints.map(cp => `U+${cp.toString(16)}`).join(" ");
+  const [ ucd, setUCD ] = React.useState(null);
+
+  React.useEffect(() => {
+    import('ijmacd.ucd').then(({ default: ucd }) => {
+      setUCD(ucd);
+    });
+  }, []);
 
   return (
-    <div>
+    <div className={classes.codePointOutput}>
       <p className={classes.label}>
         Code Points ({props.codepoints.length})
         { props.onSelect && <button className={classes.switchInput} onClick={() => props.onSelect(cpList)}>➔</button> }
       </p>
-      {
-        props.codepoints.map((x,i) => <Char value={x} key={i} ucd={props.ucd} />)
-      }
+      <div className={classes.codePointList}>
+        {
+          props.codepoints.map((x,i) => <Char value={x} key={i} ucd={ucd} />)
+        }
+      </div>
     </div>
   );
 }
@@ -90,11 +100,14 @@ export function UTF8Bytes (props) {
 }
 
 /**
- * @param {{ codepoints: number[]; }} props
+ * @param {{ codepoints: number[]; onSelect: (text: string) => void;  }} props
  */
 export function UTF8Binary (props) {
   return <div>
-    <div className={classes.label}>UTF-8 Bits</div>
+    <div className={classes.label}>
+      UTF-8 Bits
+      { props.onSelect && <button className={classes.switchInput} onClick={() => props.onSelect(formats.binary.fromCodePoint(...props.codepoints))}>➔</button> }
+    </div>
     {
       props.codepoints.map((x,i) => <BinaryBytes value={x} key={i} />)
     }

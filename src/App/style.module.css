@@ -105,7 +105,12 @@
 .char {
   display: inline-block;
   border: 1px solid #d0d0d0;
-  white-space: pre;
+  font-size: 3em;
+  width: 2em;
+  text-align: center;
+}
+.char p {
+  margin: 0;
 }
 .byte {
   display: inline-block;
@@ -132,4 +137,7 @@
   background: none;
   font-size: 1rem;
   line-height: 1rem;
+}
+.codePointList {
+  display: flex;
 }

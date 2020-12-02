@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 
 import "./UCDSearch.css";
 
-export default function ({ onChoose }) {
+export default function UCDSearch ({ onChoose }) {
     const [ value, setValue ] = useState("");
     const [ ucd, setUCD ] = useState(null);
 

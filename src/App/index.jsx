@@ -1,8 +1,6 @@
 import React, { Component } from 'react';
-import utf8 from 'utf8';
-import he from 'he';
 
-import * as input from '../input';
+import * as formats from '../formats';
 import { StringOutput, CodePoints, UTF8Bytes, UTF8Binary, EncodedOutput } from '../output';
 import UCDSearch from '../UCDSearch';
 
@@ -14,22 +12,18 @@ export default class App extends Component {
   constructor (props) {
     super(props);
 
-    this.state = {
-      value: getHash() || "",
-      inputInterpretation: "raw",
-    };
-
+    this.state = getHash();
   }
 
   onChange = (e) => {
     this.setValue(e.target.value);
   }
 
-  setValue (value, inputInterpretation=this.state.inputInterpretation) {
-    this.setState({ value, inputInterpretation }, () => {
-      window.location.hash = value;
+  setValue (value, format=this.state.format) {
+    this.setState({ value, format }, () => {
+      window.location.hash = `${format}:${value}`;
 
-      const ii = input[this.state.inputInterpretation]
+      const ii = formats[this.state.format]
       if(ii.isValid(value)) {
         document.title = `${TITLE} - ${String.fromCodePoint(...ii.parse(value))}`;
       }
@@ -38,12 +32,7 @@ export default class App extends Component {
 
   async componentDidMount () {
     window.addEventListener("hashchange", () => {
-      const value = getHash();
-      if (value !== this.state.value) {
-        const isCodePoint = /^U\+[0-9a-f]+/i.test(value);
-        const inputInterpretation = isCodePoint ? "hex" : "raw";
-        this.setState({ value, inputInterpretation });
-      }
+      this.setState(getHash());
     });
 
     this.inputRef.focus();
@@ -53,40 +42,40 @@ export default class App extends Component {
    * @param {number} codePoint
    */
   insertCodePoint (codePoint) {
-    let { value, inputInterpretation }  = this.state;
+    let { value, format }  = this.state;
 
-    if (inputInterpretation === "raw") {
-      value += String.fromCodePoint(codePoint);
-    } else if (inputInterpretation === "hex") {
-      value += " " + codePoint.toString(16);
-    } else if (inputInterpretation === "decimal") {
-      value += " " + codePoint.toString(10);
-    } else if (inputInterpretation === "utf8") {
-      const str = String.fromCodePoint(codePoint);
-      value += " " + [...utf8.encode(str)].map(c => c.charCodeAt(0).toString(16).padStart(2, "0")).join(" ");
-    } else if (inputInterpretation === "encoded") {
-      const str = String.fromCodePoint(codePoint);
-      value += he.encode(str);
-    } else if (inputInterpretation === "escaped") {
-      value += codePoint < 0xffff ? "\\u" + codePoint.toString(16).padStart(4, "0") : `\\u{${codePoint.toString(16)}}`;
+    const out = formats[format].fromCodePoint(codePoint);
+
+    if (format === "raw") {
+      value += out;
+    } else if (format === "hex") {
+      value += " " + out;
+    } else if (format === "decimal") {
+      value += " " + out;
+    } else if (format === "utf8") {
+      value += " " + out;
+    } else if (format === "encoded") {
+      value += out;
+    } else if (format === "escaped") {
+      value += out;
     }
 
     this.setValue(value);
   }
 
   render () {
-    const { value, inputInterpretation, ucd } = this.state;
+    const { value, format } = this.state;
 
-    if (!(inputInterpretation in input)) {
+    if (!(format in formats)) {
       return <p>Error: Bad input method chosen</p>;
     }
 
-    /** @type {import('../input').Interpreter} */
-    const ii = input[inputInterpretation]
+    /** @type {import('../formats').Format} */
+    const formatter = formats[format]
 
-    const isValid = ii.isValid(value);
+    const isValid = formatter.isValid(value);
 
-    let codepoints = isValid ? ii.parse(value) : [];
+    let codepoints = isValid ? formatter.parse(value) : [];
 
     return (
       <div className={classes.container}>
@@ -104,18 +93,18 @@ export default class App extends Component {
             <h2 className={classes.sectionHeader}>Input Interpretation</h2>
             <ul className={classes.inputList}>
               {
-                Object.keys(input).map(key => {
+                Object.keys(formats).map(key => {
                   try {
                     let classNames = classes.inputChoice;
-                    /** @type {import('../input').Interpreter} */
-                    const ij = input[key];
+                    /** @type {import('../formats').Format} */
+                    const ij = formats[key];
                     const isValid = ij.isValid(value);
 
                     if (!isValid) {
                       classNames += " " + classes.invalidInput;
                     }
 
-                    if (key === inputInterpretation) {
+                    if (key === format) {
                       classNames += " " + classes.selectedInput;
                     }
 
@@ -123,7 +112,7 @@ export default class App extends Component {
                       <li
                         key={key}
                         className={classNames}
-                        onClick={isValid ? (() => this.setState({ inputInterpretation: key })) : undefined}
+                        onClick={isValid ? (() => this.setValue(value, key)) : undefined}
                       >
                         {ij.label}
                         { isValid && <p>{String.fromCodePoint(...ij.parse(value))}</p> }
@@ -137,14 +126,19 @@ export default class App extends Component {
             </ul>
           </div>
           <div className={classes.outputContainer}>
+            <h2 className={classes.sectionHeader}>Code Points</h2>
+            { isValid &&
+              <CodePoints codepoints={codepoints} onSelect={format === "hex" ? null : (value) => this.setValue(value.toUpperCase(), "hex")} />
+            }
+          </div>
+          <div className={classes.outputContainer}>
             <h2 className={classes.sectionHeader}>Output</h2>
             { isValid &&
               <ul className={classes.output}>
-                <li><StringOutput codepoints={codepoints} onSelect={inputInterpretation === "raw" ? null : (value) => this.setValue(value, "raw")} /></li>
-                <li><CodePoints codepoints={codepoints} ucd={ucd} onSelect={inputInterpretation === "hex" ? null : (value) => this.setValue(value.toUpperCase(), "hex")} /></li>
-                <li><UTF8Bytes codepoints={codepoints} onSelect={inputInterpretation === "utf8" ? null : (value) => this.setValue(value, "utf8")} /></li>
-                <li><UTF8Binary codepoints={codepoints} /></li>
-                <li><EncodedOutput codepoints={codepoints} onSelect={inputInterpretation === "encoded" ? null : (value) => this.setValue(value, "encoded")} /></li>
+                <li><StringOutput codepoints={codepoints} onSelect={format === "raw" ? null : (value) => this.setValue(value, "raw")} /></li>
+                <li><UTF8Bytes codepoints={codepoints} onSelect={format === "utf8" ? null : (value) => this.setValue(value, "utf8")} /></li>
+                <li><UTF8Binary codepoints={codepoints} onSelect={format === "binary" ? null : (value) => this.setValue(value, "binary")} /></li>
+                <li><EncodedOutput codepoints={codepoints} onSelect={format === "encoded" ? null : (value) => this.setValue(value, "encoded")} /></li>
               </ul>
             }
           </div>
@@ -158,8 +152,22 @@ function getHash () {
   const { hash } = window.location;
 
   if (!hash) {
-    return "";
+    return { value: "" };
   }
 
-  return decodeURIComponent(hash.substr(1));
+  const value = decodeURIComponent(hash.substr(1));
+
+  const inputMatch = /^([a-z0-9]+):/.exec(value);
+
+  if (inputMatch) {
+    return {
+      format: inputMatch[1],
+      value: value.substr(inputMatch[0].length),
+    };
+  } else {
+    return {
+      value,
+      format: "raw",
+    };
+  }
 }
