@@ -140,4 +140,5 @@
 }
 .codePointList {
   display: flex;
+  flex-wrap: wrap;
 }
