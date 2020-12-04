@@ -152,7 +152,10 @@ function getHash () {
   const { hash } = window.location;
 
   if (!hash) {
-    return { value: "" };
+    return {
+      value: "",
+      format: "raw"
+    };
   }
 
   const value = decodeURIComponent(hash.substr(1));
