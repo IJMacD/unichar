@@ -29,7 +29,7 @@ export const raw = {
         return codepoints;
     },
     fromCodePoint (...codePoints) {
-        return String.fromCharCode(...codePoints);
+        return String.fromCodePoint(...codePoints);
     }
 };
 
@@ -49,9 +49,7 @@ export const encoded = {
 export const decimal = {
     label: "Code Point List (Decimal)",
     isValid (value) {
-        if(!/^[\d ]*$/.test(value)) {
-            return false;
-        }
+        value = value.replace(/[^\d ]/g, "");
 
         try {
             const codepoints = decimal.parse(value);
@@ -61,7 +59,7 @@ export const decimal = {
         }
     },
     parse (value) {
-        const raw = String(value).trim().replace(/ +/g, " ").split(" ");
+        const raw = value.replace(/[^\d ]/g, "").trim().replace(/ +/g, " ").split(" ");
 
         const codepoints = raw.map(x => parseInt(x, 10));
 
@@ -84,7 +82,7 @@ export const hex = {
         }
     },
     parse (value) {
-        const raw = String(value).trim().replace(/[,\s]+/g, " ");
+        const raw = value.replace(/[^\da-f U+-]/gi, "").trim().replace(/[,\s]+/g, " ");
 
         const expanded = raw.replace(/([\da-f]+)-([\da-f]+)/gi, (s, a, b) => {
             const start = parseInt(a, 16);
