@@ -46,65 +46,6 @@ export const encoded = {
 };
 
 /** @type {Format} */
-export const decimal = {
-    label: "Code Point List (Decimal)",
-    isValid (value) {
-        value = value.replace(/[^\d ]/g, "");
-
-        try {
-            const codepoints = decimal.parse(value);
-            return codepoints.every(x => x >= 0 && x < 0x110000);
-        } catch (e) {
-            return false;
-        }
-    },
-    parse (value) {
-        const raw = value.replace(/[^\d ]/g, "").trim().replace(/ +/g, " ").split(" ");
-
-        const codepoints = raw.map(x => parseInt(x, 10));
-
-        return codepoints;
-    },
-    fromCodePoint (...codePoints) {
-        return codePoints.map(cp => cp.toString(10)).join(" ");
-    }
-};
-
-/** @type {Format} */
-export const hex = {
-    label: "Code Point List (Hexidecimal)",
-    isValid (value) {
-        try {
-            const codepoints = hex.parse(value);
-            return codepoints.every(x => x >= 0 && x < 0x110000);
-        } catch (e) {
-            return false;
-        }
-    },
-    parse (value) {
-        const raw = value.replace(/[^\da-f U+-]/gi, "").trim().replace(/[,\s]+/g, " ");
-
-        const expanded = raw.replace(/([\da-f]+)-([\da-f]+)/gi, (s, a, b) => {
-            const start = parseInt(a, 16);
-            const end = parseInt(b, 16);
-
-            if (start >= end) {
-                throw RangeError(`Start must be less than end: ${start} < ${end}`);
-            }
-
-            return Array(end - start + 1).fill(0).map((x,i) => (i + start).toString(16)).join(" ");
-        }).split(" ");
-
-        const codepoints = expanded.map(p => p.replace(/^U\+/, "")).map(x => parseInt(x, 16));
-
-        return codepoints;
-    },
-    fromCodePoint (...codePoints) {
-        return codePoints.map(cp => cp.toString(16)).join(" ");
-    }
-};
-
-/** @type {Format} */
 export const escaped = {
     label: "Escaped Text",
     isValid (value) {
@@ -156,6 +97,81 @@ export const escaped = {
         return codePoints.map(codePoint =>
             codePoint < 0xffff ? "\\u" + codePoint.toString(16).padStart(4, "0") : `\\u{${codePoint.toString(16)}}`
         ).join(" ");
+    }
+};
+
+/** @type {Format} */
+export const decimal = {
+    label: "Code Point List (Decimal)",
+    isValid (value) {
+        if (value.length === 0) {
+            return true;
+        }
+
+        value = value.replace(/[^\d ]/g, "");
+
+        try {
+            const codepoints = decimal.parse(value);
+            return codepoints.every(x => x >= 0 && x < 0x110000);
+        } catch (e) {
+            return false;
+        }
+    },
+    parse (value) {
+        const raw = value.replace(/[^\d ]/g, "").trim().replace(/ +/g, " ");
+
+        if (raw.length === 0) {
+            return [];
+        }
+
+        const codepoints = raw.split(" ").map(x => parseInt(x, 10));
+
+        return codepoints;
+    },
+    fromCodePoint (...codePoints) {
+        return codePoints.map(cp => cp.toString(10)).join(" ");
+    }
+};
+
+/** @type {Format} */
+export const hex = {
+    label: "Code Point List (Hexidecimal)",
+    isValid (value) {
+        if (value.length === 0) {
+            return true;
+        }
+
+        try {
+            const codepoints = hex.parse(value);
+            return codepoints.every(x => x >= 0 && x < 0x110000);
+        } catch (e) {
+            return false;
+        }
+    },
+    parse (value) {
+        const raw = value.replace(/[^\da-f U+-]/gi, "").trim().replace(/[,\s]+/g, " ");
+
+        if (raw.length === 0) {
+            return [];
+        }
+
+        const expanded = raw.replace(/([\da-f]+)-([\da-f]+)/gi, (s, a, b) => {
+            const start = parseInt(a, 16);
+            const end = parseInt(b, 16);
+
+            if (start >= end) {
+                throw RangeError(`Start must be less than end: ${start} < ${end}`);
+            }
+
+            return Array(end - start + 1).fill(0).map((x,i) => (i + start).toString(16)).join(" ");
+        }).split(" ");
+
+        const codepoints = expanded.map(p => p.replace(/^U\+/, "")).map(x => parseInt(x, 16));
+
+        return codepoints;
+    },
+    fromCodePoint (...codePoints) {
+        return codePoints.map(cp => cp.toString(16)).join(" ");
     }
 };
 
@@ -221,6 +237,10 @@ export const utf8 = {
 export const binary = {
     label: "UTF-8 (Binary)",
     isValid (value) {
+        if (value.length === 0) {
+            return true;
+        }
+
         if (/[^01 ]/.test(value)) {
             return false;
         }
@@ -238,6 +258,10 @@ export const binary = {
         }
     },
     parse (value) {
+        if (value.trim().length === 0) {
+            return [];
+        }
+
         const bytes = value.trim().split(" ").map(v => parseInt(v, 2));
 
         const byteString = bytes.map(x => String.fromCharCode(x)).join("");

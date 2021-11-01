@@ -53,25 +53,27 @@ export function EncodedOutput (props) {
 /**
  * @param {{ codepoints: number[]; onSelect: (text: string) => void; }} props
  */
-export function CodePoints (props) {
-  const cpList = props.codepoints.map(cp => `U+${cp.toString(16)}`).join(" ");
+export function CodePoints ({ codepoints, onSelect }) {
+  const cpList = codepoints.map(cp => `U+${cp.toString(16)}`).join(" ");
   const [ ucd, setUCD ] = React.useState(null);
 
   React.useEffect(() => {
-    import('ijmacd.ucd').then(({ default: ucd }) => {
-      setUCD(ucd);
-    });
-  }, []);
+    if (codepoints.length && !ucd) {
+      import('ijmacd.ucd').then(({ default: ucd }) => {
+        setUCD(ucd);
+      });
+    }
+  }, [codepoints, ucd]);
 
   return (
     <div className={classes.codePointOutput}>
       <p className={classes.label}>
-        Code Points ({props.codepoints.length})
-        { props.onSelect && <button className={classes.switchInput} onClick={() => props.onSelect(cpList)}>➔</button> }
+        Code Points ({codepoints.length})
+        { onSelect && <button className={classes.switchInput} onClick={() => onSelect(cpList)}>➔</button> }
       </p>
       <div className={classes.codePointList}>
         {
-          props.codepoints.map((x,i) => <Char value={x} key={i} ucd={ucd} />)
+          codepoints.map((x,i) => <Char value={x} key={i} ucd={ucd} />)
         }
       </div>
     </div>

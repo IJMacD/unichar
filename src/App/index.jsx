@@ -119,6 +119,7 @@ export default class App extends Component {
                       </li>
                     );
                   } catch (e) {
+                    console.debug(e);
                     return "Error decoding value";
                   }
                 })
