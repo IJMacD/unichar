@@ -198,6 +198,10 @@ export const hex = {
                 throw RangeError(`Start must be less than end: ${start} < ${end}`);
             }
 
+            if (end - start >= 0x1000) {
+                throw RangeError(`Too many code points: ${end - start}`);
+            }
+
             return Array(end - start + 1).fill(0).map((x,i) => (i + start).toString(16)).join(" ");
         }).split(" ");
 
