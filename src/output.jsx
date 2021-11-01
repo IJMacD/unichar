@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import utf8 from 'utf8';
 import he from 'he';
 import * as formats from './formats';
@@ -17,19 +17,18 @@ function copyText (string) {
   document.body.removeChild(el);
 }
 
-/**
- * @param {{ codepoints: number[]; onSelect: (text: string) => void; }} props
- */
-export function StringOutput (props) {
-  const str = String.fromCodePoint(...props.codepoints);
+function CommonOutput ({ label, onSelect, string, children = null, copyable = false, defaultExpanded = false }) {
+  const [ expanded, setExpanded ] = useState(defaultExpanded);
+
   return (
-    <div>
+    <div onClick={() => setExpanded(!expanded)} style={{cursor:"pointer", padding: "8px 0"}}>
       <p className={classes.label}>
-        String
-        { props.onSelect && <button className={classes.switchInput} onClick={() => props.onSelect(str)}>➔</button> }
-        <button className={classes.switchInput} onClick={() => copyText(str)}>📋</button>
+        { label }{' '}
+        { onSelect && <button className={classes.switchInput} onClick={() => onSelect(string)}>✎</button> }
+        { copyable && <button className={classes.switchInput} onClick={() => copyText(string)}>📋</button> }
+        <span style={{color: "black"}}>{expanded ? "▼" : "◀"}</span>
       </p>
-      { str }
+      { expanded && (children || string) }
     </div>
   );
 }
@@ -37,17 +36,25 @@ export function StringOutput (props) {
 /**
  * @param {{ codepoints: number[]; onSelect: (text: string) => void; }} props
  */
+export function StringOutput (props) {
+  const str = String.fromCodePoint(...props.codepoints);
+  return <CommonOutput label="String" onSelect={props.onSelect} string={str} copyable defaultExpanded />;
+}
+
+/**
+ * @param {{ codepoints: number[]; onSelect: (text: string) => void; }} props
+ */
 export function EncodedOutput (props) {
   const str = he.encode(String.fromCodePoint(...props.codepoints), { useNamedReferences: true });
-  return (
-    <div>
-      <p className={classes.label}>
-        Encoded
-        { props.onSelect && <button className={classes.switchInput} onClick={() => props.onSelect(str)}>➔</button> }
-      </p>
-      { str }
-    </div>
-  );
+  return <CommonOutput label="Encoded" onSelect={props.onSelect} string={str} />
+}
+
+/**
+ * @param {{ codepoints: number[]; onSelect: (text: string) => void; }} props
+ */
+export function EscapedOutput (props) {
+  const str = formats.escaped.fromCodePoint(...props.codepoints);
+  return <CommonOutput label="Escaped" onSelect={props.onSelect} string={str} />
 }
 
 /**
@@ -66,10 +73,10 @@ export function CodePoints ({ codepoints, onSelect }) {
   }, [codepoints, ucd]);
 
   return (
-    <div className={classes.codePointOutput}>
+    <div className={classes.codePointOutput} style={{flex:1}}>
       <p className={classes.label}>
         Code Points ({codepoints.length})
-        { onSelect && <button className={classes.switchInput} onClick={() => onSelect(cpList)}>➔</button> }
+        { onSelect && <button className={classes.switchInput} onClick={() => onSelect(cpList)}>✎</button> }
       </p>
       <div className={classes.codePointList}>
         {
@@ -85,19 +92,20 @@ export function CodePoints ({ codepoints, onSelect }) {
  */
 export function UTF8Bytes (props) {
 
-  const bytes = [...utf8.encode(String.fromCodePoint(...props.codepoints))].map(b => b.charCodeAt(0).toString(16).padStart(2,"0")).join(" ");
-  const length = utf8.encode(String.fromCodePoint(...props.codepoints)).length;
+  const encoded = utf8.encode(String.fromCodePoint(...props.codepoints));
+  const bytes = [...encoded].map(b => b.charCodeAt(0).toString(16).padStart(2,"0")).join(" ");
+  const length = encoded.length;
 
   return (
-    <div>
-      <p className={classes.label}>
-        UTF-8 ({length} {length === 1 ? "byte" : "bytes"})
-        { props.onSelect && <button className={classes.switchInput} onClick={() => props.onSelect(bytes)}>➔</button> }
-      </p>
+    <CommonOutput
+      label={`UTF-8 (${length} ${length === 1 ? "byte" : "bytes"})`}
+      onSelect={props.onSelect}
+      string={bytes}
+    >
       {
         props.codepoints.map((x,i) => <Bytes value={x} key={i} />)
       }
-    </div>
+    </CommonOutput>
   );
 }
 
@@ -105,15 +113,19 @@ export function UTF8Bytes (props) {
  * @param {{ codepoints: number[]; onSelect: (text: string) => void;  }} props
  */
 export function UTF8Binary (props) {
-  return <div>
-    <div className={classes.label}>
-      UTF-8 Bits
-      { props.onSelect && <button className={classes.switchInput} onClick={() => props.onSelect(formats.binary.fromCodePoint(...props.codepoints))}>➔</button> }
-    </div>
-    {
-      props.codepoints.map((x,i) => <BinaryBytes value={x} key={i} />)
-    }
-  </div>
+  return (
+    <CommonOutput
+      label={`UTF-8 Bits`}
+      onSelect={props.onSelect}
+      string={formats.binary.fromCodePoint(...props.codepoints)}
+    >
+      <div style={{fontSize:"1rem"}}>
+        {
+          props.codepoints.map((x,i) => <BinaryBytes value={x} key={i} />)
+        }
+      </div>
+    </CommonOutput>
+  );
 }
 
 /**

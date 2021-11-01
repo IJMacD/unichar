@@ -14,6 +14,8 @@
     list-style: none;
     border: 1px solid rgba(0,0,0,0.3);
     box-shadow: 2px 2px 4px 1px rgba(0,0,0,0.7);
+    max-height: 80vh;
+    overflow-y: auto;
 }
 .UCDSearch-list:empty {
     display: none;

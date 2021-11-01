@@ -93,10 +93,14 @@ export const escaped = {
         return codepoints;
     },
     fromCodePoint (...codePoints) {
-        // Todo: Escape only non-ascii?
         return codePoints.map(codePoint =>
-            codePoint < 0xffff ? "\\u" + codePoint.toString(16).padStart(4, "0") : `\\u{${codePoint.toString(16)}}`
-        ).join(" ");
+            (codePoint >= 0x20 && codePoint < 0x80) ?
+                // Printable ASCII as-is
+                String.fromCodePoint(codePoint)
+                :
+                // Everything else escaped
+                (codePoint < 0xffff ? "\\u" + codePoint.toString(16).padStart(4, "0") : `\\u{${codePoint.toString(16)}}`)
+        ).join("");
     }
 };
 
@@ -277,7 +281,8 @@ export const binary = {
         }
     },
     fromCodePoint (...codePoints) {
-        return codePoints.map(cp => cp.toString(2).padStart(8, "0")).join(" ");
+        const bytes = u.encode(String.fromCodePoint(...codePoints));
+        return [...bytes].map(b => b.charCodeAt(0).toString(2).padStart(8, "0")).join(" ");
     }
 }
 

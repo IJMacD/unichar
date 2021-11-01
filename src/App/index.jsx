@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 
 import * as formats from '../formats';
-import { StringOutput, CodePoints, UTF8Bytes, UTF8Binary, EncodedOutput } from '../output';
+import { StringOutput, CodePoints, UTF8Bytes, UTF8Binary, EncodedOutput, EscapedOutput } from '../output';
 import UCDSearch from '../UCDSearch';
 
 import classes from './style.module.css';
@@ -126,7 +126,7 @@ export default class App extends Component {
               }
             </ul>
           </div>
-          <div className={classes.outputContainer}>
+          <div className={classes.outputContainer} style={{flex:1}}>
             <h2 className={classes.sectionHeader}>Code Points</h2>
             { isValid &&
               <CodePoints codepoints={codepoints} onSelect={format === "hex" ? null : (value) => this.setValue(value.toUpperCase(), "hex")} />
@@ -140,6 +140,7 @@ export default class App extends Component {
                 <li><UTF8Bytes codepoints={codepoints} onSelect={format === "utf8" ? null : (value) => this.setValue(value, "utf8")} /></li>
                 <li><UTF8Binary codepoints={codepoints} onSelect={format === "binary" ? null : (value) => this.setValue(value, "binary")} /></li>
                 <li><EncodedOutput codepoints={codepoints} onSelect={format === "encoded" ? null : (value) => this.setValue(value, "encoded")} /></li>
+                <li><EscapedOutput codepoints={codepoints} onSelect={format === "escaped" ? null : (value) => this.setValue(value, "escaped")} /></li>
               </ul>
             }
           </div>
