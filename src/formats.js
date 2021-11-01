@@ -70,14 +70,7 @@ export const urlEncoded = {
         }
     },
     fromCodePoint (...codePoints) {
-        return codePoints.map(codePoint =>
-            (codePoint >= 0x20 && codePoint < 0x80) ?
-                // Printable ASCII as-is
-                String.fromCodePoint(codePoint)
-                :
-                // Everything else escaped
-                [...u.encode(String.fromCodePoint(codePoint))].map(c => "%" + c.charCodeAt(0).toString(16).padStart(2, "0")).join("")
-        ).join("");
+        return encodeURIComponent(String.fromCodePoint(...codePoints));
     }
 };
 
