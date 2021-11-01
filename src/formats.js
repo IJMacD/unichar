@@ -172,7 +172,7 @@ export const hex = {
             return true;
         }
 
-        if (value.match(/[^a-f\d\s]/i)) {
+        if (value.match(/[^a-f\d\sU+-]/i)) {
             return false;
         }
 
@@ -184,7 +184,7 @@ export const hex = {
         }
     },
     parse (value) {
-        const raw = value.replace(/[^\da-f U+-]/gi, "").trim().replace(/[,\s]+/g, " ");
+        const raw = value.replace(/[^\da-f\sU+-]/gi, "").trim().replace(/[,\s]+/g, " ");
 
         if (raw.length === 0) {
             return [];
