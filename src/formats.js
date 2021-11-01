@@ -1,6 +1,12 @@
 import u from 'utf8';
 import he from 'he';
 
+const taiwanTelegraphMapping = require('./data/TaiwanTelegraph.json');
+const mainlandTelegraphMapping = require('./data/MainlandTelegraph.json');
+
+const TAIWAN_MAX_CODE = 9798;
+const MAINLAND_MAX_CODE = 9694;
+
 /**
  * @typedef Format
  * @prop {string} label
@@ -35,7 +41,7 @@ export const raw = {
 
 /** @type {Format} */
 export const encoded = {
-    label: "Encoded String",
+    label: "HTML Encoded",
     isValid: () => true,
     parse (value) {
         return raw.parse(he.decode(String(value)));
@@ -46,8 +52,27 @@ export const encoded = {
 };
 
 /** @type {Format} */
+export const urlEncoded = {
+    label: "URL Encoded",
+    isValid: () => true,
+    parse (value) {
+        return [...decodeURIComponent(String(value))].map(c => c.charCodeAt(0));
+    },
+    fromCodePoint (...codePoints) {
+        return codePoints.map(codePoint =>
+            (codePoint >= 0x20 && codePoint < 0x80) ?
+                // Printable ASCII as-is
+                String.fromCodePoint(codePoint)
+                :
+                // Everything else escaped
+                [...u.encode(String.fromCodePoint(codePoint))].map(c => "%" + c.charCodeAt(0).toString(16).padStart(2, "0")).join("")
+        ).join("");
+    }
+};
+
+/** @type {Format} */
 export const escaped = {
-    label: "Escaped Text",
+    label: "Escape Sequences",
     isValid (value) {
         try {
             const codepoints = this.parse(value);
@@ -112,7 +137,9 @@ export const decimal = {
             return true;
         }
 
-        value = value.replace(/[^\d ]/g, "");
+        if (value.match(/[^\d ]/)) {
+            return false;
+        }
 
         try {
             const codepoints = decimal.parse(value);
@@ -143,6 +170,10 @@ export const hex = {
     isValid (value) {
         if (value.length === 0) {
             return true;
+        }
+
+        if (value.match(/[^a-f\d\s]/i)) {
+            return false;
         }
 
         try {
@@ -283,6 +314,58 @@ export const binary = {
     fromCodePoint (...codePoints) {
         const bytes = u.encode(String.fromCodePoint(...codePoints));
         return [...bytes].map(b => b.charCodeAt(0).toString(2).padStart(8, "0")).join(" ");
+    }
+}
+
+/** @type {Format} */
+export const taiwanTelegraph = {
+    label: "Chinese Telegraph Code (Traditional)",
+    isValid (value) {
+        if (value.length === 0) {
+            return true;
+        }
+
+        if (/[^\d\s]/.test(value)) {
+            return false;
+        }
+
+        return value.trim().split(" ").map(v => parseInt(v, 10)).every(n => n >= 0 && n <= TAIWAN_MAX_CODE);
+    },
+    parse (value) {
+        if (value.trim().length === 0) {
+            return [];
+        }
+
+        return value.trim().split(" ").map(v => taiwanTelegraphMapping[parseInt(v, 10)]);
+    },
+    fromCodePoint (...codePoints) {
+        return "";
+    }
+}
+
+/** @type {Format} */
+export const mainlandTelegraph = {
+    label: "Chinese Telegraph Code (Simplified)",
+    isValid (value) {
+        if (value.length === 0) {
+            return true;
+        }
+
+        if (/[^\d\s]/.test(value)) {
+            return false;
+        }
+
+        return value.trim().split(" ").map(v => parseInt(v, 10)).every(n => n >= 0 && n <= MAINLAND_MAX_CODE);
+    },
+    parse (value) {
+        if (value.trim().length === 0) {
+            return [];
+        }
+
+        return value.trim().split(" ").map(v => mainlandTelegraphMapping[parseInt(v, 10)]);
+    },
+    fromCodePoint (...codePoints) {
+        return "";
     }
 }
 

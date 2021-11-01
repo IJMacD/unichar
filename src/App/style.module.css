@@ -37,7 +37,7 @@
   padding: 8px;
   border: 1px solid #CCC;
   word-break: break-word;
-  width: 160px;
+  flex: 1 0 160px;
   min-height: 120px;
   max-height: 160px;
   overflow: hidden;
@@ -144,9 +144,11 @@
     flex-direction: row;
   }
   .inputList {
-    flex-direction: column;
+    display: unset;
   }
   .inputChoice {
     width: unset;
+    min-height: unset;
+    max-height: 60px;
   }
 }

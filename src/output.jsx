@@ -46,7 +46,7 @@ export function StringOutput (props) {
  */
 export function EncodedOutput (props) {
   const str = he.encode(String.fromCodePoint(...props.codepoints), { useNamedReferences: true });
-  return <CommonOutput label="Encoded" onSelect={props.onSelect} string={str} />
+  return <CommonOutput label={formats.encoded.label} onSelect={props.onSelect} string={str} />
 }
 
 /**
@@ -54,7 +54,14 @@ export function EncodedOutput (props) {
  */
 export function EscapedOutput (props) {
   const str = formats.escaped.fromCodePoint(...props.codepoints);
-  return <CommonOutput label="Escaped" onSelect={props.onSelect} string={str} />
+  return <CommonOutput label={formats.escaped.label} onSelect={props.onSelect} string={str} />
+}
+
+/**
+ * @param {{ codepoints: number[]; onSelect: (text: string) => void; }} props
+ */
+export function URLEncodedOutput (props) {
+  return <CommonOutput label={formats.urlEncoded.label} onSelect={props.onSelect} string={formats.urlEncoded.fromCodePoint(...props.codepoints)} />
 }
 
 /**

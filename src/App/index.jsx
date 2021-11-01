@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 
 import * as formats from '../formats';
-import { StringOutput, CodePoints, UTF8Bytes, UTF8Binary, EncodedOutput, EscapedOutput } from '../output';
+import { StringOutput, CodePoints, UTF8Bytes, UTF8Binary, EncodedOutput, EscapedOutput, URLEncodedOutput } from '../output';
 import UCDSearch from '../UCDSearch';
 
 import classes from './style.module.css';
@@ -21,7 +21,7 @@ export default class App extends Component {
 
   setValue (value, format=this.state.format) {
     this.setState({ value, format }, () => {
-      window.location.hash = `${format}:${value}`;
+      window.location.hash = `${format}:${encodeURIComponent(value)}`;
 
       const ii = formats[this.state.format]
       if(ii.isValid(value)) {
@@ -140,6 +140,7 @@ export default class App extends Component {
                 <li><UTF8Bytes codepoints={codepoints} onSelect={format === "utf8" ? null : (value) => this.setValue(value, "utf8")} /></li>
                 <li><UTF8Binary codepoints={codepoints} onSelect={format === "binary" ? null : (value) => this.setValue(value, "binary")} /></li>
                 <li><EncodedOutput codepoints={codepoints} onSelect={format === "encoded" ? null : (value) => this.setValue(value, "encoded")} /></li>
+                <li><URLEncodedOutput codepoints={codepoints} onSelect={format === "urlEncoded" ? null : (value) => this.setValue(value, "urlEncoded")} /></li>
                 <li><EscapedOutput codepoints={codepoints} onSelect={format === "escaped" ? null : (value) => this.setValue(value, "escaped")} /></li>
               </ul>
             }
@@ -162,7 +163,7 @@ function getHash () {
 
   const value = decodeURIComponent(hash.substr(1));
 
-  const inputMatch = /^([a-z0-9]+):/.exec(value);
+  const inputMatch = /^([a-z0-9]+):/i.exec(value);
 
   if (inputMatch) {
     return {
