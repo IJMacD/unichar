@@ -16,9 +16,9 @@
   "dependencies": {
     "he": "1.2.x",
     "ijmacd.ucd": "0.13.0",
-    "react": "17.0.0",
-    "react-dom": "17.0.0",
-    "react-scripts": "4.0.0",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2",
+    "react-scripts": "^4.0.3",
     "utf8": "^3.0.0"
   },
   "scripts": {
