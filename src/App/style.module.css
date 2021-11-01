@@ -79,6 +79,13 @@
 .output p {
   margin: 0;
 }
+.output button {
+  padding: 4px 6px;
+}
+.output button:hover {
+  background-color: rgba(0,0,0,0.1);
+  border-radius: 5px;
+}
 .label {
   font-size: 16px;
   color: #666;

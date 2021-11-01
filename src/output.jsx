@@ -21,11 +21,11 @@ function CommonOutput ({ label, onSelect, string, children = null, copyable = fa
   const [ expanded, setExpanded ] = useState(defaultExpanded);
 
   return (
-    <div onClick={() => setExpanded(!expanded)} style={{cursor:"pointer", padding: "8px 0"}}>
+    <div onClick={() => { document.getSelection().getRangeAt(0).collapsed && setExpanded(!expanded); }} style={{cursor:"pointer", padding: "8px 0"}}>
       <p className={classes.label}>
         { label }{' '}
-        { onSelect && <button className={classes.switchInput} onClick={() => onSelect(string)}>✎</button> }
-        { copyable && <button className={classes.switchInput} onClick={() => copyText(string)}>📋</button> }
+        { onSelect && <button className={classes.switchInput} onClick={e => { e.stopPropagation(); onSelect(string); }}>✎</button> }
+        { copyable && <button className={classes.switchInput} onClick={e => { e.stopPropagation(); copyText(string); }}>📋</button> }
         <span style={{color: "black"}}>{expanded ? "▼" : "◀"}</span>
       </p>
       { expanded && (children || string) }
