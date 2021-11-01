@@ -54,9 +54,20 @@ export const encoded = {
 /** @type {Format} */
 export const urlEncoded = {
     label: "URL Encoded",
-    isValid: () => true,
+    isValid: (value) => {
+        try {
+            [...decodeURIComponent(String(value))].map(c => c.charCodeAt(0));
+            return true;
+        } catch (e) {
+            return false;
+        }
+    },
     parse (value) {
-        return [...decodeURIComponent(String(value))].map(c => c.charCodeAt(0));
+        try {
+            return [...decodeURIComponent(String(value))].map(c => c.charCodeAt(0));
+        } catch (e) {
+            return [];
+        }
     },
     fromCodePoint (...codePoints) {
         return codePoints.map(codePoint =>

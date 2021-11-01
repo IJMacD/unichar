@@ -60,8 +60,15 @@ export function EscapedOutput (props) {
 /**
  * @param {{ codepoints: number[]; onSelect: (text: string) => void; }} props
  */
-export function URLEncodedOutput (props) {
+ export function URLEncodedOutput (props) {
   return <CommonOutput label={formats.urlEncoded.label} onSelect={props.onSelect} string={formats.urlEncoded.fromCodePoint(...props.codepoints)} />
+}
+
+/**
+ * @param {{ codepoints: number[]; onSelect: (text: string) => void; }} props
+ */
+export function DecimalOutput (props) {
+  return <CommonOutput label={formats.decimal.label} onSelect={props.onSelect} string={props.codepoints.join(" ")} />
 }
 
 /**

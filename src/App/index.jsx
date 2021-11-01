@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 
 import * as formats from '../formats';
-import { StringOutput, CodePoints, UTF8Bytes, UTF8Binary, EncodedOutput, EscapedOutput, URLEncodedOutput } from '../output';
+import { StringOutput, CodePoints, UTF8Bytes, UTF8Binary, EncodedOutput, EscapedOutput, URLEncodedOutput, DecimalOutput } from '../output';
 import UCDSearch from '../UCDSearch';
 
 import classes from './style.module.css';
@@ -139,6 +139,7 @@ export default class App extends Component {
                 <li><StringOutput codepoints={codepoints} onSelect={format === "raw" ? null : (value) => this.setValue(value, "raw")} /></li>
                 <li><UTF8Bytes codepoints={codepoints} onSelect={format === "utf8" ? null : (value) => this.setValue(value, "utf8")} /></li>
                 <li><UTF8Binary codepoints={codepoints} onSelect={format === "binary" ? null : (value) => this.setValue(value, "binary")} /></li>
+                <li><DecimalOutput codepoints={codepoints} onSelect={format === "decimal" ? null : (value) => this.setValue(value, "decimal")} /></li>
                 <li><EncodedOutput codepoints={codepoints} onSelect={format === "encoded" ? null : (value) => this.setValue(value, "encoded")} /></li>
                 <li><URLEncodedOutput codepoints={codepoints} onSelect={format === "urlEncoded" ? null : (value) => this.setValue(value, "urlEncoded")} /></li>
                 <li><EscapedOutput codepoints={codepoints} onSelect={format === "escaped" ? null : (value) => this.setValue(value, "escaped")} /></li>
