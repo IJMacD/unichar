@@ -1,0 +1,33 @@
+.Toast {
+    position: fixed;
+    background-color: rgba(0,0,0,0.8);
+    border-radius: 1em;
+    padding: 0.6em 1.2em;
+    color: white;
+    bottom: 2em;
+    max-width: 230px;
+    left: 50%;
+    transform: translateX(-50%);
+    animation-name: appear, disappear;
+    animation-duration: 0.2s, 1s;
+    animation-delay: 0, 5s;
+    animation-fill-mode: backwards, forwards;
+}
+
+@keyframes appear {
+    0% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
+@keyframes disappear {
+    0% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+    }
+}

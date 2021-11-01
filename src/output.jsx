@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import utf8 from 'utf8';
 import he from 'he';
 import * as formats from './formats';
+import { Toast } from './Toast';
 
 import classes from './App/style.module.css';
 
@@ -25,7 +26,7 @@ function CommonOutput ({ label, onSelect, string, children = null, copyable = fa
       <p className={classes.label}>
         { label }{' '}
         { onSelect && <button className={classes.switchInput} onClick={e => { e.stopPropagation(); onSelect(string); }}>✎</button> }
-        { copyable && <button className={classes.switchInput} onClick={e => { e.stopPropagation(); copyText(string); }}>📋</button> }
+        { copyable && <button className={classes.switchInput} onClick={e => { e.stopPropagation(); copyText(string); Toast("Copied"); }}>📋</button> }
         <span style={{color: "black"}}>{expanded ? "▼" : "◀"}</span>
       </p>
       { expanded && (children || string) }
