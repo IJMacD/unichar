@@ -1,6 +1,7 @@
 import utf8 from 'utf8';
 
-const UPPER_HALF = "€ ‚ƒ„…†‡ˆ‰Š‹Œ Ž  ‘’“”•–—˜™š›œ žŸ ¡¢£¤¥¦§¨©ª«¬­®¯°±²³´µ¶·¸¹º»¼½¾¿ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿ";
+// Undefined Windows-1252 bytes are replaced with the Unicode characters at that codepoint to aid conversion (e.g. 0x81, 0x8D, 0x8f, etc.)
+const UPPER_HALF = "€‚ƒ„…†‡ˆ‰Š‹ŒŽ‘’“”•–—˜™š›œžŸ ¡¢£¤¥¦§¨©ª«¬­®¯°±²³´µ¶·¸¹º»¼½¾¿ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿ";
 
 /** @type {import('.').Format} */
 export const windows1252 = {
@@ -57,14 +58,13 @@ export const windows1252Hex = {
         return values.map(v => v < 0x80 ? v : UPPER_HALF.codePointAt(v - 0x80));
     },
     fromCodePoint (...codePoints) {
-        const REPLACEMENT_CHARACTER = 0xFFFD; // �
         return codePoints.map(c => {
             let hex = 0;
 
             if (c < 0x80) hex = c;
             else {
                 const index = UPPER_HALF.indexOf(String.fromCodePoint(c));
-                if (index < 0) hex = REPLACEMENT_CHARACTER;
+                if (index < 0) hex = c; // It's helpful if we just use the Unicode code point
                 else hex = 0x80 + index;
             }
 
