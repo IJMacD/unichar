@@ -2,6 +2,12 @@ import { useState, useEffect } from 'react';
 
 import "./UCDSearch.css";
 
+/**
+ *
+ * @param {object} props
+ * @param {(codePoint: number) => void} props.onChoose
+ * @returns
+ */
 export default function UCDSearch ({ onChoose }) {
     const [ value, setValue ] = useState("");
     const [ ucd, setUCD ] = useState(null);
@@ -21,6 +27,7 @@ export default function UCDSearch ({ onChoose }) {
                 { results.map(r => (
                     <li key={r.codePoint} onClick={() => { setValue(""); onChoose(r.codePoint); }}>{r.name} {String.fromCodePoint(r.codePoint)}</li>
                 )) }
+                { results.length > 0 && <li className="UCDSearch-LinkItem" onClick={() => { setValue(""); results.forEach(r => onChoose(r.codePoint)); }}>All</li> }
             </ul>
         </div>
     )

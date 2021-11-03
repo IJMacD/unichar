@@ -20,14 +20,7 @@ export default class App extends Component {
   }
 
   setValue (value, format=this.state.format) {
-    this.setState({ value, format }, () => {
-      window.location.hash = `${format}:${encodeURIComponent(value)}`;
-
-      const ii = formats[this.state.format]
-      if(ii.isValid(value)) {
-        document.title = `${TITLE} - ${String.fromCodePoint(...ii.parse(value))}`;
-      }
-    });
+    this.setState({ value, format });
   }
 
   async componentDidMount () {
@@ -42,25 +35,38 @@ export default class App extends Component {
    * @param {number} codePoint
    */
   insertCodePoint (codePoint) {
-    let { value, format }  = this.state;
+    this.setState(oldState => {
+      let { value, format }  = oldState;
 
-    const out = formats[format].fromCodePoint(codePoint);
+      const out = formats[format].fromCodePoint(codePoint);
 
-    if (format === "raw") {
-      value += out;
-    } else if (format === "hex") {
-      value += " " + out;
-    } else if (format === "decimal") {
-      value += " " + out;
-    } else if (format === "utf8") {
-      value += " " + out;
-    } else if (format === "encoded") {
-      value += out;
-    } else if (format === "escaped") {
-      value += out;
+      if (format === "raw") {
+        value += out;
+      } else if (format === "hex") {
+        value += " " + out;
+      } else if (format === "decimal") {
+        value += " " + out;
+      } else if (format === "utf8") {
+        value += " " + out;
+      } else if (format === "encoded") {
+        value += out;
+      } else if (format === "escaped") {
+        value += out;
+      }
+
+      return { value };
+    });
+  }
+
+  componentDidUpdate () {
+    const { value, format } = this.state;
+
+    window.location.hash = `${format}:${encodeURIComponent(value)}`;
+
+    const ii = formats[this.state.format]
+    if(ii.isValid(value)) {
+      document.title = `${TITLE} - ${String.fromCodePoint(...ii.parse(value))}`;
     }
-
-    this.setValue(value);
   }
 
   render () {
@@ -87,7 +93,7 @@ export default class App extends Component {
           style={{border: isValid ? "" : "1px solid #f33"}}
           ref={ref => this.inputRef = ref}
         />
-        <UCDSearch onChoose={cp => this.insertCodePoint(cp)} />
+        <UCDSearch onChoose={(/** @type {number} */ cp) => this.insertCodePoint(cp)} />
         <div className={classes.inOutContainer}>
           <div className={classes.inputContainer}>
             <h2 className={classes.sectionHeader}>Input Interpretation</h2>

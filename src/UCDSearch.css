@@ -26,3 +26,11 @@
 .UCDSearch-list li:hover {
     background: rgba(0,0,0,0.3);
 }
+.UCDSearch-LinkItem {
+    color: darkblue;
+    text-decoration: underline;
+}
+.UCDSearch-list .UCDSearch-LinkItem:hover {
+    background: unset;
+    color: blue;
+}
