@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 
 import * as formats from '../formats';
-import { StringOutput, CodePoints, UTF8Bytes, UTF8Binary, EncodedOutput, EscapedOutput, URLEncodedOutput, DecimalOutput } from '../output';
+import { StringOutput, CodePoints, UTF8Bytes, UTF8Binary, EncodedOutput, EscapedOutput, URLEncodedOutput, DecimalOutput, Windows1252HexOutput } from '../output';
 import UCDSearch from '../UCDSearch';
 
 import classes from './style.module.css';
@@ -149,6 +149,7 @@ export default class App extends Component {
                 <li><EncodedOutput codepoints={codepoints} onSelect={format === "encoded" ? null : (value) => this.setValue(value, "encoded")} /></li>
                 <li><URLEncodedOutput codepoints={codepoints} onSelect={format === "urlEncoded" ? null : (value) => this.setValue(value, "urlEncoded")} /></li>
                 <li><EscapedOutput codepoints={codepoints} onSelect={format === "escaped" ? null : (value) => this.setValue(value, "escaped")} /></li>
+                <li><Windows1252HexOutput codepoints={codepoints} onSelect={format === "windows1252Hex" ? null : (value) => this.setValue(value, "windows1252Hex")} /></li>
               </ul>
             }
           </div>

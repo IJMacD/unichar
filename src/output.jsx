@@ -75,8 +75,15 @@ export function DecimalOutput (props) {
 /**
  * @param {{ codepoints: number[]; onSelect: (text: string) => void; }} props
  */
+export function Windows1252HexOutput (props) {
+  return <CommonOutput label={formats.windows1252Hex.label} onSelect={props.onSelect} string={formats.windows1252Hex.fromCodePoint(...props.codepoints)} />
+}
+
+/**
+ * @param {{ codepoints: number[]; onSelect: (text: string) => void; }} props
+ */
 export function CodePoints ({ codepoints, onSelect }) {
-  const cpList = codepoints.map(cp => `U+${cp.toString(16)}`).join(" ");
+  const cpList = codepoints.map(cp => cp.toString(16)).join(" ");
   const [ ucd, setUCD ] = React.useState(null);
 
   React.useEffect(() => {
@@ -107,21 +114,25 @@ export function CodePoints ({ codepoints, onSelect }) {
  */
 export function UTF8Bytes (props) {
 
-  const encoded = utf8.encode(String.fromCodePoint(...props.codepoints));
-  const bytes = [...encoded].map(b => b.charCodeAt(0).toString(16).padStart(2,"0")).join(" ");
-  const length = encoded.length;
+  try {
+    const encoded = utf8.encode(String.fromCodePoint(...props.codepoints));
+    const bytes = [...encoded].map(b => b.charCodeAt(0).toString(16).padStart(2,"0")).join(" ");
+    const length = encoded.length;
 
-  return (
-    <CommonOutput
-      label={`UTF-8 (${length} ${length === 1 ? "byte" : "bytes"})`}
-      onSelect={props.onSelect}
-      string={bytes}
-    >
-      {
-        props.codepoints.map((x,i) => <Bytes value={x} key={i} />)
-      }
-    </CommonOutput>
-  );
+    return (
+      <CommonOutput
+        label={`UTF-8 (${length} ${length === 1 ? "byte" : "bytes"})`}
+        onSelect={props.onSelect}
+        string={bytes}
+      >
+        {
+          props.codepoints.map((x,i) => <Bytes value={x} key={i} />)
+        }
+      </CommonOutput>
+    );
+  } catch (e) {
+    return null;
+  }
 }
 
 /**
