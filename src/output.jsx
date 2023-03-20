@@ -82,6 +82,13 @@ export function Windows1252HexOutput (props) {
 /**
  * @param {{ codepoints: number[]; onSelect: (text: string) => void; }} props
  */
+export function Base64Utf8Output (props) {
+  return <CommonOutput label={formats.base64Utf8.label} onSelect={props.onSelect} string={formats.base64Utf8.fromCodePoint(...props.codepoints)} />
+}
+
+/**
+ * @param {{ codepoints: number[]; onSelect: (text: string) => void; }} props
+ */
 export function CodePoints ({ codepoints, onSelect }) {
   const cpList = codepoints.map(cp => cp.toString(16)).join(" ");
   const [ ucd, setUCD ] = React.useState(null);

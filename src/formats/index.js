@@ -1,5 +1,11 @@
 import u from 'utf8';
 import he from 'he';
+
+export { windows1252, windows1252Hex } from './windows1252';
+export { mainlandTelegraph, taiwanTelegraph } from './chineseTelegraph';
+export { big5 } from './big5';
+export { base64Utf8 } from "./base64Utf8";
+
 /**
  * @typedef Format
  * @prop {string} label
@@ -19,9 +25,11 @@ export const raw = {
 
         for (let i = 0; i < raw.length; i++) {
             const cp = raw.codePointAt(i);
-            codepoints.push(cp);
-            if (cp > 0xffff) {
-                i++;
+            if (cp) {
+                codepoints.push(cp);
+                if (cp > 0xffff) {
+                    i++;
+                }
             }
         }
 
@@ -49,7 +57,7 @@ export const urlEncoded = {
     label: "URL Encoded",
     isValid: (value) => {
         try {
-            [...decodeURIComponent(String(value))].map(c => c.charCodeAt(0));
+            [...decodeURIComponent(String(value))].map(c => c.codePointAt(0));
             return true;
         } catch (e) {
             return false;
@@ -57,7 +65,7 @@ export const urlEncoded = {
     },
     parse (value) {
         try {
-            return [...decodeURIComponent(String(value))].map(c => c.charCodeAt(0));
+            return [...decodeURIComponent(String(value))].map(c => c.codePointAt(0)||0);
         } catch (e) {
             return [];
         }
@@ -261,14 +269,14 @@ export const utf8 = {
         try {
             const string = u.decode(byteString);
 
-            const codepoints = [...string].map(x => x.codePointAt(0));
+            const codepoints = [...string].map(x => x.codePointAt(0)||0);
 
             return codepoints;
         } catch (e) {
             return [];
         }
     },
-    fromCodePoint (codePoints) {
+    fromCodePoint (...codePoints) {
         return [...u.encode(String.fromCodePoint(...codePoints))].map(c => c.charCodeAt(0).toString(16).padStart(2, "0")).join(" ");
     }
 };
@@ -309,7 +317,7 @@ export const binary = {
         try {
             const string = u.decode(byteString);
 
-            const codepoints = [...string].map(x => x.codePointAt(0));
+            const codepoints = [...string].map(x => x.codePointAt(0)||0);
 
             return codepoints;
         } catch (e) {
@@ -325,10 +333,5 @@ export const binary = {
         }
     }
 }
-
-
-export { windows1252, windows1252Hex } from './windows1252';
-export { mainlandTelegraph, taiwanTelegraph } from './chineseTelegraph';
-export { big5 } from './big5';
 
 const flatten = arr => [].concat(...arr);

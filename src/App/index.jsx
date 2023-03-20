@@ -1,7 +1,18 @@
 import React, { Component } from 'react';
 
 import * as formats from '../formats';
-import { StringOutput, CodePoints, UTF8Bytes, UTF8Binary, EncodedOutput, EscapedOutput, URLEncodedOutput, DecimalOutput, Windows1252HexOutput } from '../output';
+import {
+  StringOutput,
+  CodePoints,
+  UTF8Bytes,
+  UTF8Binary,
+  EncodedOutput,
+  EscapedOutput,
+  URLEncodedOutput,
+  DecimalOutput,
+  Windows1252HexOutput,
+  Base64Utf8Output,
+} from '../output';
 import UCDSearch from '../UCDSearch';
 
 import classes from './style.module.css';
@@ -63,17 +74,19 @@ export default class App extends Component {
 
     window.location.hash = `${format}:${encodeURIComponent(value)}`;
 
-    const ii = formats[this.state.format]
-    if(ii.isValid(value)) {
-      document.title = `${TITLE} - ${String.fromCodePoint(...ii.parse(value))}`;
+    if (format in formats) {
+      const ii = formats[format]
+      if(ii.isValid(value)) {
+        document.title = `${TITLE} - ${String.fromCodePoint(...ii.parse(value))}`;
+      }
     }
   }
 
   render () {
-    const { value, format } = this.state;
+    let { value, format } = this.state;
 
     if (!(format in formats)) {
-      return <p>Error: Bad input method chosen</p>;
+      format = "raw";
     }
 
     /** @type {import('../formats').Format} */
@@ -82,6 +95,9 @@ export default class App extends Component {
     const isValid = formatter.isValid(value);
 
     let codepoints = isValid ? formatter.parse(value) : [];
+
+    // Re-order so "raw" is at start
+    const inputFormatList = [ "raw", ...Object.keys(formats).filter(key => key !== "raw") ];
 
     return (
       <div className={classes.container}>
@@ -99,7 +115,7 @@ export default class App extends Component {
             <h2 className={classes.sectionHeader}>Input Interpretation</h2>
             <ul className={classes.inputList}>
               {
-                Object.keys(formats).map(key => {
+                inputFormatList.map(key => {
                   try {
                     let classNames = classes.inputChoice;
                     /** @type {import('../formats').Format} */
@@ -150,6 +166,7 @@ export default class App extends Component {
                 <li><URLEncodedOutput codepoints={codepoints} onSelect={format === "urlEncoded" ? null : (value) => this.setValue(value, "urlEncoded")} /></li>
                 <li><EscapedOutput codepoints={codepoints} onSelect={format === "escaped" ? null : (value) => this.setValue(value, "escaped")} /></li>
                 <li><Windows1252HexOutput codepoints={codepoints} onSelect={format === "windows1252Hex" ? null : (value) => this.setValue(value, "windows1252Hex")} /></li>
+                <li><Base64Utf8Output codepoints={codepoints} onSelect={format === "base64Utf8" ? null : (value) => this.setValue(value, "base64utf8")} /></li>
               </ul>
             }
           </div>
