@@ -5,6 +5,7 @@ import * as formats from './formats';
 import { Toast } from './Toast';
 
 import classes from './App/style.module.css';
+import { UTF8Bytes as UTF8ByteBlocks } from './output/UTF8Bytes';
 
 /**
  * @param {string} string
@@ -89,36 +90,6 @@ export function Base64Utf8Output (props) {
 /**
  * @param {{ codepoints: number[]; onSelect: (text: string) => void; }} props
  */
-export function CodePoints ({ codepoints, onSelect }) {
-  const cpList = codepoints.map(cp => cp.toString(16)).join(" ");
-  const [ ucd, setUCD ] = React.useState(null);
-
-  React.useEffect(() => {
-    if (codepoints.length && !ucd) {
-      import('ijmacd.ucd').then(({ default: ucd }) => {
-        setUCD(ucd);
-      });
-    }
-  }, [codepoints, ucd]);
-
-  return (
-    <div className={classes.codePointOutput} style={{flex:1}}>
-      <p className={classes.label}>
-        Code Points ({codepoints.length})
-        { onSelect && <button className={classes.switchInput} onClick={() => onSelect(cpList)}>✎</button> }
-      </p>
-      <div className={classes.codePointList}>
-        {
-          codepoints.map((x,i) => <Char value={x} key={i} ucd={ucd} />)
-        }
-      </div>
-    </div>
-  );
-}
-
-/**
- * @param {{ codepoints: number[]; onSelect: (text: string) => void; }} props
- */
 export function UTF8Bytes (props) {
 
   try {
@@ -133,7 +104,7 @@ export function UTF8Bytes (props) {
         string={bytes}
       >
         {
-          props.codepoints.map((x,i) => <Bytes value={x} key={i} />)
+          props.codepoints.map((x,i) => <UTF8ByteBlocks value={x} key={i} />)
         }
       </CommonOutput>
     );
@@ -159,39 +130,6 @@ export function UTF8Binary (props) {
       </div>
     </CommonOutput>
   );
-}
-
-/**
- * @param {{ value: number; ucd: { getName: (char: string) => string; }; }} props
- */
-function Char (props) {
-  if(isNaN(props.value)) return null;
-
-  const char = String.fromCodePoint(props.value);
-  const title = props.ucd ? props.ucd.getName(char) : "";
-
-  return <div className={classes.char} title={title}>
-    <p>{char}</p>
-    <span className={classes.label}>U+{Number(props.value).toString(16).toUpperCase()}</span>
-    { props.ucd && <span className={classes.labelName}>{title}</span> }
-  </div>;
-}
-
-/**
- * @param {{ value: number; }} props
- */
-function Bytes (props) {
-  if(isNaN(props.value)) return null;
-
-  try {
-    const bytes = [...utf8.encode(String.fromCodePoint(props.value))].map(c => c.charCodeAt(0));
-
-    return <div className={classes.byte} style={{ marginRight: 4 }}>
-      {bytes.map((b, i) => <span key={i}>{b.toString(16).padStart(2,'0')}</span>)}
-    </div>;
-  } catch (e) {
-    return;
-  }
 }
 
 /**

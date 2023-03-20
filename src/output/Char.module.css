@@ -1,0 +1,14 @@
+
+.char {
+    display: inline-block;
+    border: 1px solid #d0d0d0;
+    font-size: 3em;
+    width: 2em;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+}
+.char p {
+    margin: 0;
+}

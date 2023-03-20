@@ -1,0 +1,116 @@
+.TheChain {
+    list-style: none;
+    padding: 0;
+}
+
+.TheChain-Link {
+    display: inline-block;
+    padding: 0.5em;
+    width: 100px;
+    height: 100px;
+    border: 1px solid rgba(0,0,0,0.3);
+    vertical-align: top;
+    position: relative;
+    border-radius: 5px;
+}
+
+.TheChain-Link::before {
+    content: "";
+    z-index: 1;
+    height: 0px;
+    width: 0px;
+    position: absolute;
+    right: -31px;
+    top: 60px;
+    border: 15px solid transparent;
+    border-left-color: grey;
+}
+
+.TheChain-Link::after {
+    content: "";
+    z-index: 1;
+    height: 0px;
+    width: 0px;
+    position: absolute;
+    right: -29px;
+    top: 60px;
+    border: 15px solid transparent;
+    border-left-color: grey;
+}
+
+.TheChain-Link--string {
+    background-color: #FFCCCC;
+    border-color: #C04040;
+}
+
+.TheChain-Link--string::before {
+    border-left-color: #C04040;
+}
+
+.TheChain-Link--string::after {
+    border-left-color: #FFCCCC;
+}
+
+.TheChain-Link--codepoints {
+    background-color: #cce6ff;
+    border-color: #406fc0;
+}
+
+.TheChain-Link--codepoints::before {
+    border-left-color: #406fc0;
+}
+
+.TheChain-Link--codepoints::after {
+    border-left-color: #cce6ff;
+}
+
+.TheChain-Link--bytes {
+    background-color: #ffe3cc;
+    border-color: #c08440;
+}
+
+.TheChain-Link--bytes::before {
+    border-left-color: #c08440;
+}
+
+.TheChain-Link--bytes::after {
+    border-left-color: #ffe3cc;
+}
+
+.TheChainPage-Error {
+    font-weight: bold;
+    color: red;
+}
+
+.TheChainPage-Button {
+    border: 1px solid grey;
+    padding: 0.5em 0.5em;
+    margin: 0.25em;
+}
+
+.TheChainPage-Button:disabled {
+    opacity: 0.5;
+}
+
+.TheChainPage-Button:not(:disabled):hover {
+    opacity: 0.8;
+}
+
+.TheChainPage-Button--string {
+    composes: TheChainPage-Button;
+    background-color: #FFCCCC;
+    border-color: #C04040;
+}
+
+.TheChainPage-Button--codepoints {
+    composes: TheChainPage-Button;
+    background-color: #cce6ff;
+    border-color: #406fc0;
+}
+
+.TheChainPage-Button--bytes {
+    composes: TheChainPage-Button;
+    background-color: #ffe3cc;
+    border-color: #c08440;
+}
+
