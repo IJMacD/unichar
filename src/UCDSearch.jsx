@@ -23,7 +23,7 @@ export default function UCDSearch ({ onChoose }) {
     return (
         <div className="UCDSearch">
             <input type="search" value={value} onChange={e => setValue(e.target.value)} placeholder="Search" />
-            <ul className="UCDSearch-list">
+            <ul className="UCDSearch-list" style={{zIndex: 2}}>
                 { results.map(r => (
                     <li key={r.codePoint} onClick={() => { setValue(""); onChoose(r.codePoint); }}>{r.name} {String.fromCodePoint(r.codePoint)}</li>
                 )) }

@@ -1,19 +1,22 @@
 import utf8 from 'utf8';
 
+// Example corruption: CafÃ©
+// See also: https://en.wikipedia.org/wiki/Mojibake
+
 // Undefined Windows-1252 bytes are replaced with the Unicode characters at that codepoint to aid conversion (e.g. 0x81, 0x8D, 0x8f, etc.)
 const UPPER_HALF = "€‚ƒ„…†‡ˆ‰Š‹ŒŽ‘’“”•–—˜™š›œžŸ ¡¢£¤¥¦§¨©ª«¬­®¯°±²³´µ¶·¸¹º»¼½¾¿ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿ";
 
-/** @type {import('.').Format} */
+/** @type {import('.').Format&{parseBytes:(value: string)=>number[]}} */
 export const windows1252 = {
     label: "UTF-8 (As Windows-1252)",
     isValid: (value) => {
         if (value.length === 0) return true;
 
-        const bytes = [...value].map(c => c.charCodeAt(0) < 0x80 ? c.charCodeAt(0) : 0x80 + UPPER_HALF.indexOf(c));
+        try {
+        const bytes = windows1252.parseBytes(value);
 
         const byteString = bytes.map(x => String.fromCharCode(x)).join("");
 
-        try {
             utf8.decode(byteString);
 
             return true;
@@ -24,7 +27,7 @@ export const windows1252 = {
     parse (value) {
         if (value.length === 0) return [];
 
-        const bytes = [...value].map(c => c.charCodeAt(0) < 0x80 ? c.charCodeAt(0) : 0x80 + UPPER_HALF.indexOf(c));
+        let bytes = windows1252.parseBytes(value);
 
         const byteString = bytes.map(x => String.fromCharCode(x)).join("");
 
@@ -38,8 +41,20 @@ export const windows1252 = {
             return [];
         }
     },
-    fromCodePoint (...codePoints) {
-        return "";
+    parseBytes (value) {
+        return [...value].map(c => {
+            if (c.charCodeAt(0) < 0x80) return c.charCodeAt(0);
+            const index = UPPER_HALF.indexOf(c);
+            if (index < 0) throw Error(`Invalid Windows-1252 character: '${c}'`);
+            return 0x80 + index;
+        });
+    },
+    fromCodePoint (...bytes) {
+        return bytes.map(b => {
+            if (b < 0x80) return String.fromCodePoint(b);
+            if (b < 0x100) return UPPER_HALF[b - 0x80];
+            throw Error(`Windows-1252: Invalid byte value <${b.toString(16)}>`);
+        }).join("");
     }
 };
 
