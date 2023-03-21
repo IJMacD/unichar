@@ -238,7 +238,7 @@ function getHash () {
 function getChainStart (format) {
   switch (format) {
     case "raw": return [0x1200];
-    case "base64utf8": return [0x1304,0x3200];
+    case "base64Utf8": return [0x1304,0x3200];
     case "big5": return null;
     case "binary": return null;
     case "decimal": return [0x120A];
