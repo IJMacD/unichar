@@ -247,7 +247,7 @@ function getChainStart (format) {
     case "hex": return [0x1201];
     case "mainlandTelegraph": return null;
     case "taiwanTelegraph": return null;
-    case "urlEncoded": return null;
+    case "urlEncoded": return [0x1307,0x3200];
     case "utf8": return [0x1306,0x3200];
     case "windows1252": return [0x1312,0x3200];
     case "windows1252Hex": return [0x1306,0x3112,0x1200];

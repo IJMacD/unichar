@@ -86,9 +86,10 @@ const availableBlocks = [
     { id: 0x1200, inverse: 0x2100, label: "Raw Characters", input: "string", output: "codepoints", convert: (input) => [...input].map(s => s.codePointAt(0)||0) },
     { id: 0x1201, inverse: 0x2101, label: "Hex Code Points", input: "string", output: "codepoints", convert: (input) => hex.parse(input) },
     { id: 0x120A, label: "Decimal Code Points", input: "string", output: "codepoints", convert: (input) => decimal.parse(input) },
+    // { id: 0x1300, label: "UTF-8", input: "string", output: "bytes", convert: (input) => getUTF8Bytes(stringToCodePoints(input)) },
     { id: 0x1304, inverse: 0x3104, label: "Base64", input: "string", output: "bytes", convert: (input) => new Uint8Array([...atob(input)].map(c => c.charCodeAt(0))) },
     { id: 0x1306, inverse: 0x3106, label: "Hex Bytes", input: "string", output: "bytes", convert: parseHexBytes },
-    // { id: 0x1302, label: "UTF-8", input: "string", output: "bytes", convert: (input) => getUTF8Bytes(stringToCodePoints(input)) },
+    { id: 0x1307, inverse: 0x3107, label: "URLEncoded", input: "string", output: "bytes", convert: (input) => new Uint8Array([...decodeURI(input)].map(c => c.charCodeAt(0))) },
     { id: 0x1312, inverse: 0x3112, label: "Windows-1252", input: "string", output: "bytes", convert: (input) => new Uint8Array(windows1252.parseBytes(input)) },
 
     { id: 0x2300, inverse: 0x3200, label: "UTF-8", input: "codepoints", output: "bytes", convert: (input) => getUTF8Bytes(input) },
@@ -105,8 +106,8 @@ const availableBlocks = [
     // { id: 0x3102, label: "UTF-32", input: "bytes", output: "string", convert: (input) => String.fromCodePoint(...new Uint32Array(input.buffer)) },
     { id: 0x3104, inverse: 0x1304, label: "Base64", input: "bytes", output: "string", convert: (input) => btoa(String.fromCharCode(...input)) },
     { id: 0x3106, inverse: 0x1306, label: "To Hex", input: "bytes", output: "string", convert: (input) => [...input].map(b => b.toString(16).padStart(2, "0")).join(" ") },
+    { id: 0x3107, inverse: 0x1307, label: "URLEncode", input: "bytes", output: "string", convert: (input) => [...input].map(b => b > 0x20 && b < 0x80 && !urlSpecial.includes(b) ? String.fromCharCode(b) : `%${b.toString(16).padStart(2,"0").toUpperCase()}`).join("") },
     { id: 0x3112, inverse: 0x1312, label: "Windows-1252", input: "bytes", output: "string", convert: (input) => windows1252.fromCodePoint(...input) },
-    { id: 0x3107, label: "URLEncode", input: "bytes", output: "string", convert: (input) => [...input].map(b => b > 0x20 && b < 0x80 && !urlSpecial.includes(b) ? String.fromCharCode(b) : `%${b.toString(16).padStart(2,"0").toUpperCase()}`).join("") },
 ];
 
 /**
