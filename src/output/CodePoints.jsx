@@ -4,7 +4,7 @@ import { useUCD } from '../useUCD';
 import { Char } from "./Char";
 
 /**
- * @param {{ codepoints: number[]; onSelect: (text: string) => void; }} props
+ * @param {{ codepoints: number[]; onSelect?: (text: string) => void; }} props
  */
 
 export function CodePoints({ codepoints, onSelect }) {

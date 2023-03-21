@@ -4,9 +4,10 @@ export class TheChainError extends Error {
     /**
      *
      * @param {number} errorIndex
+     * @param {string} [message]
      */
-    constructor (errorIndex) {
-        super(`Error in the chain at index ${errorIndex}`);
+    constructor (errorIndex, message) {
+        super(`Error in the chain at index ${errorIndex}. ${message||""}`);
 
         this.errorIndex = errorIndex;
     }

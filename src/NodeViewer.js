@@ -12,7 +12,7 @@ export function NodeViewer({ node }) {
     const ucd = useUCD();
 
     if (typeof node === "string") {
-        return <p>{node}</p>;
+        return <p style={{wordBreak:"break-word"}}>{node}</p>;
     }
 
     if (node instanceof Uint8Array) {
@@ -26,7 +26,7 @@ export function NodeViewer({ node }) {
     if (node) {
         return (
             <div style={{ display: "flex", flexWrap: "wrap" }}>
-                {node.map((x, i) => <Char value={x} key={i} ucd={ucd} />)}
+                {node.map((x, i) => <Char value={x} key={i} ucd={ucd||void 0} />)}
             </div>
         );
     }

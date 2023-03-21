@@ -1,74 +1,146 @@
 import React, { useState } from "react";
-import { decimal, hex } from "./formats";
+import { decimal, hex, windows1252 } from "./formats";
 import { NodeViewer } from "./NodeViewer";
 import styles from "./TheChain.module.css";
 import { TheChainError } from "./TheChainError";
 import { getUTF8Bytes, parseUTF8Bytes, stringToCodePoints } from "./utf8";
 
 /**
- * @typedef {StringBlock|CodePointsBlock|BytesBlock} Block
+ * @typedef {BaseBlock&(StringBytesBlock|StringCodePointsBlock|CodePointsStringBlock|CodePointsBytesBlock|BytesStringBlock|BytesCodePointsBlock)} Block
  */
 /**
- * @typedef StringBlock
+ * @typedef BaseBlock
+ * @property {number} id
  * @property {string} label
- * @property {string} input
+ * @property {number} [inverse]
+ */
+/**
+ * @typedef CodePointsStringBlock
+ * @property {"codepoints"} input
  * @property {"string"} output
- * @property {(input: string|number[]|Uint8Array) => string} convert
+ * @property {(input: number[]) => string} convert
  */
 /**
- * @typedef CodePointsBlock
- * @property {string} label
- * @property {string} input
+ * @typedef BytesStringBlock
+ * @property {"bytes"} input
+ * @property {"string"} output
+ * @property {(input: Uint8Array) => string} convert
+ */
+/**
+ * @typedef BytesCodePointsBlock
+ * @property {"bytes"} input
  * @property {"codepoints"} output
- * @property {(input: string|number[]|Uint8Array) => number[]} convert
+ * @property {(input: Uint8Array) => number[]} convert
  */
 /**
- * @typedef BytesBlock
- * @property {string} label
- * @property {string} input
+ * @typedef StringCodePointsBlock
+ * @property {"string"} input
+ * @property {"codepoints"} output
+ * @property {(input: string) => number[]} convert
+ */
+/**
+ * @typedef StringBytesBlock
+ * @property {"string"} input
  * @property {"bytes"} output
- * @property {(input: string|number[]|Uint8Array) => Uint8Array} convert
+ * @property {(input: string) => Uint8Array} convert
+ */
+/**
+ * @typedef CodePointsBytesBlock
+ * @property {"codepoints"} input
+ * @property {"bytes"} output
+ * @property {(input: number[]) => Uint8Array} convert
  */
 
-/**
- * @type {{ [key: string]: { label: string }}}
- */
-const availableNodes = {
-    raw: { label: "Raw" },
-    codepoints: { label: "Code Points" },
-    string: { label: "String" },
-    bytes: { label: "bytes" },
+// /**
+//  * @type {{ [key: string]: { label: string }}}
+//  */
+// const availableNodes = {
+//     raw: { label: "Raw" },
+//     codepoints: { label: "Code Points" },
+//     string: { label: "String" },
+//     bytes: { label: "bytes" },
+// };
+
+const parseHexBytes = (/** @type {string} */ input) => {
+    return new Uint8Array(input.split(/\s+/).map(c => {
+        const v = parseInt(c, 16);
+        if (isNaN(v)) throw Error(`Hex Bytes: bad byte <${c}>`);
+        return v;
+    }));
 };
+
+const urlSpecial = [0x22,0x25,0x3C,0x3E,0x5B,0x5C,0x5D,0x5E,0x60,0x7B,0x7C,0x7D,0x7F];
 
 /** @type {Block[]} */
 const availableBlocks = [
-    { label: "Raw Characters", input: "string", output: "codepoints", convert: (/** @type {string} */input) => [...input].map(s => s.codePointAt(0)||0) },
-    { label: "Hex Code Points", input: "string", output: "codepoints", convert: (/** @type {string} */input) => hex.parse(input) },
-    { label: "Decimal Code Points", input: "string", output: "codepoints", convert: (/** @type {string} */input) => decimal.parse(input) },
-    { label: "Base64", input: "string", output: "bytes", convert: (/** @type {string} */input) => new Uint8Array([...atob(input)].map(c => c.charCodeAt(0))) },
-    // { label: "UTF-8", input: "string", output: "bytes", convert: (/** @type {string} */input) => getUTF8Bytes(stringToCodePoints(input)) },
+    // Numbering Scheme:
+    // id: 0xABNN
+    //  A   - From
+    //  B   - To
+    //  NN  - Identifier
+    // A,B from {1,2,3} where:
+    //  1 - string
+    //  2 - codepoints
+    //  3 - bytes
 
-    { label: "UTF-8", input: "codepoints", output: "bytes", convert: (/** @type {number[]} */input) => getUTF8Bytes(input) },
-    { label: "UTF-16 LE", input: "codepoints", output: "bytes", convert: (/** @type {number[]} */input) => new Uint8Array(new Uint16Array(String.fromCodePoint(...input).split("").map(c => c.charCodeAt(0))).buffer) },
-    { label: "UTF-32", input: "codepoints", output: "bytes", convert: (/** @type {number[]} */input) => new Uint8Array(new Uint32Array(input).buffer) },
-    { label: "Code Points to String", input: "codepoints", output: "string", convert: (/** @type {number[]} */input) => String.fromCodePoint(...input) },
+    { id: 0x1200, inverse: 0x2100, label: "Raw Characters", input: "string", output: "codepoints", convert: (input) => [...input].map(s => s.codePointAt(0)||0) },
+    { id: 0x1201, inverse: 0x2101, label: "Hex Code Points", input: "string", output: "codepoints", convert: (input) => hex.parse(input) },
+    { id: 0x120A, label: "Decimal Code Points", input: "string", output: "codepoints", convert: (input) => decimal.parse(input) },
+    { id: 0x1304, inverse: 0x3104, label: "Base64", input: "string", output: "bytes", convert: (input) => new Uint8Array([...atob(input)].map(c => c.charCodeAt(0))) },
+    { id: 0x1306, inverse: 0x3106, label: "Hex Bytes", input: "string", output: "bytes", convert: parseHexBytes },
+    // { id: 0x1302, label: "UTF-8", input: "string", output: "bytes", convert: (input) => getUTF8Bytes(stringToCodePoints(input)) },
+    { id: 0x1312, inverse: 0x3112, label: "Windows-1252", input: "string", output: "bytes", convert: (input) => new Uint8Array(windows1252.parseBytes(input)) },
 
-    { label: "UTF-8", input: "bytes", output: "codepoints", convert: (/** @type {Uint8Array} */input) => stringToCodePoints(parseUTF8Bytes(input)) },
-    { label: "UTF-16 LE", input: "bytes", output: "codepoints", convert: (/** @type {Uint8Array} */input) => stringToCodePoints(String.fromCharCode(...new Uint16Array(input.buffer))) },
-    { label: "UTF-32", input: "bytes", output: "codepoints", convert: (/** @type {Uint8Array} */input) => stringToCodePoints(String.fromCodePoint(...new Uint32Array(input.buffer))) },
-    // { label: "UTF-16 LE", input: "bytes", output: "string", convert: (/** @type {Uint8Array} */input) => String.fromCharCode(...new Uint16Array(input.buffer)) },
-    // { label: "UTF-32", input: "bytes", output: "string", convert: (/** @type {Uint8Array} */input) => String.fromCodePoint(...new Uint32Array(input.buffer)) },
-    { label: "Base64", input: "bytes", output: "string", convert: (/** @type {Uint8Array} */input) => btoa(String.fromCharCode(...input)) },
+    { id: 0x2300, inverse: 0x3200, label: "UTF-8", input: "codepoints", output: "bytes", convert: (input) => getUTF8Bytes(input) },
+    { id: 0x2301, inverse: 0x3201, label: "UTF-16 LE", input: "codepoints", output: "bytes", convert: (input) => new Uint8Array(new Uint16Array(String.fromCodePoint(...input).split("").map(c => c.charCodeAt(0))).buffer) },
+    { id: 0x2302, inverse: 0x3202, label: "UTF-32", input: "codepoints", output: "bytes", convert: (input) => new Uint8Array(new Uint32Array(input).buffer) },
+    { id: 0x2100, inverse: 0x1200, label: "Code Points to String", input: "codepoints", output: "string", convert: (input) => String.fromCodePoint(...input) },
+    { id: 0x2101, inverse: 0x1201, label: "To Hex", input: "codepoints", output: "string", convert: (input) => input.map(cp => "U+" + cp.toString(16).toUpperCase()).join(" ") },
+
+    { id: 0x3200, inverse: 0x2300, label: "UTF-8", input: "bytes", output: "codepoints", convert: (input) => stringToCodePoints(parseUTF8Bytes(input)) },
+    { id: 0x3201, inverse: 0x2301, label: "UTF-16 LE", input: "bytes", output: "codepoints", convert: (input) => stringToCodePoints(String.fromCharCode(...new Uint16Array(input.buffer))) },
+    { id: 0x3202, inverse: 0x2302, label: "UTF-32", input: "bytes", output: "codepoints", convert: (input) => stringToCodePoints(String.fromCodePoint(...new Uint32Array(input.buffer))) },
+    // { id: 0x3100, label: "UTF-8", input: "bytes", output: "string", convert: (input) =>  },
+    // { id: 0x3101, label: "UTF-16 LE", input: "bytes", output: "string", convert: (input) => String.fromCharCode(...new Uint16Array(input.buffer)) },
+    // { id: 0x3102, label: "UTF-32", input: "bytes", output: "string", convert: (input) => String.fromCodePoint(...new Uint32Array(input.buffer)) },
+    { id: 0x3104, inverse: 0x1304, label: "Base64", input: "bytes", output: "string", convert: (input) => btoa(String.fromCharCode(...input)) },
+    { id: 0x3106, inverse: 0x1306, label: "To Hex", input: "bytes", output: "string", convert: (input) => [...input].map(b => b.toString(16).padStart(2, "0")).join(" ") },
+    { id: 0x3112, inverse: 0x1312, label: "Windows-1252", input: "bytes", output: "string", convert: (input) => windows1252.fromCodePoint(...input) },
+    { id: 0x3107, label: "URLEncode", input: "bytes", output: "string", convert: (input) => [...input].map(b => b > 0x20 && b < 0x80 && !urlSpecial.includes(b) ? String.fromCharCode(b) : `%${b.toString(16).padStart(2,"0").toUpperCase()}`).join("") },
 ];
 
 /**
  *
  * @param {object} props
  * @param {string} props.input
+ * @param {number[]} [props.initialChain]
  * @returns
  */
-export function TheChainPage ({ input }) {
-    const [ theChain, setTheChain ] = useState(/** @type {Block[]} */([]));
+export function TheChainPage ({ input, initialChain }) {
+    const [ theChain, setTheChain ] = useState(() => {
+        /** @type {Block[]} */
+        const chain = [];
+
+        if (initialChain) {
+            for (const id of initialChain) {
+                const block = availableBlocks.find(b => b.id === id);
+
+                if (typeof block === "undefined")
+                    throw Error(`Can't find block ID: ${id}`);
+
+                // Avoid adding block and its inverse immediately next to each other
+                const prevBlock = chain.length > 0 ? chain[chain.length - 1] : null;
+                if (prevBlock && prevBlock.id === block.inverse) {
+                    chain.length--;
+                    continue;
+                }
+
+                chain.push(block);
+            }
+        }
+
+        return chain;
+    });
 
     const chainOut = theChain.length === 0 ? "string" : theChain[theChain.length - 1].output;
 
@@ -92,9 +164,9 @@ export function TheChainPage ({ input }) {
     }
 
     return (
-        <div>
+        <div style={{width:"100%"}}>
             <ol className={styles.TheChain}>
-                <li className={`${styles["TheChain-Link"]} ${styles[`TheChain-Link--string`]}`}>Input</li>
+                <li className={`${styles.link} ${styles.string}`}>Input</li>
             {
                 theChain.map((link, i) => {
                     const isLast = i === theChain.length - 1;
@@ -105,13 +177,17 @@ export function TheChainPage ({ input }) {
                         } :
                         void 0;
 
-                    const className = `${styles["TheChain-Link"]} ${styles[`TheChain-Link--${link.output}`]}`;
+                    const className = [
+                        styles.link,
+                        styles[link.output],
+                        i === errorIndex ? styles.error : "",
+                        errorIndex >= 0 && i > errorIndex ? styles.unused : ""
+                    ].join(" ");
 
                     return (
                         <li
                             key={i}
                             className={className}
-                            style={{cursor:isLast?"pointer":void 0,outline:errorIndex===i?"2px solid red":void 0}}
                             onClick={onClick}
                         >
                             {link.label}
@@ -120,19 +196,23 @@ export function TheChainPage ({ input }) {
                 })
             }
             </ol>
-            <h2>Output:</h2>
             {
-                errorIndex >= 0 &&
-                <p className={styles["TheChainPage-Error"]}>Broken Chain</p>
+                errorIndex >= 0 ?
+                <h2 className={styles["TheChainPage-Error"]}>Broken Chain</h2> :
+                <h2>Output:</h2>
             }
             <NodeViewer node={output} />
+            {
+                errorIndex >= 0 &&
+                    <p className={styles.hint}>(Value before break)</p>
+            }
             <div>
-                <h2>Blocks</h2>
-                <h3>From String</h3>
+                <h2>Add Link</h2>
+                <h3><div className={`${styles.linkPreview} ${styles.string}`} /> From String</h3>
                 <BlockAdder onAdd={block => setTheChain([...theChain, block])} blocks={availableBlocks.filter(b => b.input === "string")} chainOut={chainOut} />
-                <h3>From Code Points</h3>
+                <h3><div className={`${styles.linkPreview} ${styles.codepoints}`} /> From Code Points</h3>
                 <BlockAdder onAdd={block => setTheChain([...theChain, block])} blocks={availableBlocks.filter(b => b.input === "codepoints")} chainOut={chainOut} />
-                <h3>From Bytes</h3>
+                <h3><div className={`${styles.linkPreview} ${styles.bytes}`} /> From Bytes</h3>
                 <BlockAdder onAdd={block => setTheChain([...theChain, block])} blocks={availableBlocks.filter(b => b.input === "bytes")} chainOut={chainOut} />
             </div>
         </div>
@@ -165,13 +245,14 @@ function performTheChain(theChain, input) {
 
     try {
         // @ts-ignore
-        return theChain.reduce((prev, block, index) => {
+        return theChain.reduce((/** @type {string|number|Uint8Array} */prev, block, index) => {
             lastIndex = index;
+            // @ts-ignore
             return block.convert(prev);
         }, input);
     }
     catch (e) {
-        throw new TheChainError(lastIndex);
+        throw new TheChainError(lastIndex, e.message);
     }
 }
 

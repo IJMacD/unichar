@@ -1,5 +1,5 @@
 import React from 'react';
-import classes from '../App/style.module.css';
+import styles from "./Bytes.module.css";
 
 /**
  * @param {object} props
@@ -7,7 +7,7 @@ import classes from '../App/style.module.css';
  */
 export function Bytes({ bytes }) {
     return (
-      <div className={classes.byte} style={{ marginRight: 4 }}>
+      <div className={styles.byte} style={{ marginRight: 4 }}>
         {[...bytes].map((b, i) => <span key={i}>{b.toString(16).padStart(2, '0')}</span>)}
       </div>
     );
