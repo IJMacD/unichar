@@ -189,7 +189,7 @@ export default class App extends Component {
                   <li><StringOutput codepoints={codepoints} onSelect={format === "raw" ? void 0 : (value) => this.setValue(value, "raw")} onChain={chain?() => this.setChain([...chain, 0x2100]):void 0} /></li>
                   <li><UTF8Bytes codepoints={codepoints} onSelect={format === "utf8" ? void 0 : (value) => this.setValue(value, "utf8")} onChain={chain?() => this.setChain([...chain, 0x2300]):void 0} /></li>
                   <li><UTF8Binary codepoints={codepoints} onSelect={format === "binary" ? void 0 : (value) => this.setValue(value, "binary")} /></li>
-                  <li><DecimalOutput codepoints={codepoints} onSelect={format === "decimal" ? void 0 : (value) => this.setValue(value, "decimal")} /></li>
+                  <li><DecimalOutput codepoints={codepoints} onSelect={format === "decimal" ? void 0 : (value) => this.setValue(value, "decimal")} onChain={chain?() => this.setChain([...chain, 0x210A]):void 0} /></li>
                   <li><EncodedOutput codepoints={codepoints} onSelect={format === "encoded" ? void 0 : (value) => this.setValue(value, "encoded")} /></li>
                   <li><URLEncodedOutput codepoints={codepoints} onSelect={format === "urlEncoded" ? void 0 : (value) => this.setValue(value, "urlEncoded")} onChain={chain?() => this.setChain([...chain, 0x2300, 0x3107]):void 0} /></li>
                   <li><EscapedOutput codepoints={codepoints} onSelect={format === "escaped" ? void 0 : (value) => this.setValue(value, "escaped")} /></li>
@@ -243,7 +243,7 @@ function getChainStart (format) {
     case "binary": return null;
     case "decimal": return [0x120A];
     case "encoded": return null;
-    case "escaped": return null;
+    case "escaped": return [0x120B];
     case "hex": return [0x1201];
     case "mainlandTelegraph": return null;
     case "taiwanTelegraph": return null;

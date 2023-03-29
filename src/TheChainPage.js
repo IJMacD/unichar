@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { decimal, hex, windows1252 } from "./formats";
+import { decimal, escaped, hex, windows1252 } from "./formats";
 import { NodeViewer } from "./NodeViewer";
 import styles from "./TheChain.module.css";
 import { TheChainError } from "./TheChainError";
@@ -51,20 +51,10 @@ import { getUTF8Bytes, parseUTF8Bytes, stringToCodePoints } from "./utf8";
  * @property {(input: number[]) => Uint8Array} convert
  */
 
-// /**
-//  * @type {{ [key: string]: { label: string }}}
-//  */
-// const availableNodes = {
-//     raw: { label: "Raw" },
-//     codepoints: { label: "Code Points" },
-//     string: { label: "String" },
-//     bytes: { label: "bytes" },
-// };
-
 const parseHexBytes = (/** @type {string} */ input) => {
     return new Uint8Array(input.split(/\s+/).map(c => {
         const v = parseInt(c, 16);
-        if (isNaN(v)) throw Error(`Hex Bytes: bad byte <${c}>`);
+        if (isNaN(v) || v > 255) throw Error(`Hex Bytes: bad byte <${c}>`);
         return v;
     }));
 };
@@ -85,7 +75,9 @@ const availableBlocks = [
 
     { id: 0x1200, inverse: 0x2100, label: "Raw Characters", input: "string", output: "codepoints", convert: (input) => [...input].map(s => s.codePointAt(0)||0) },
     { id: 0x1201, inverse: 0x2101, label: "Hex Code Points", input: "string", output: "codepoints", convert: (input) => hex.parse(input) },
-    { id: 0x120A, label: "Decimal Code Points", input: "string", output: "codepoints", convert: (input) => decimal.parse(input) },
+    { id: 0x120A, inverse: 0x210A, label: "Decimal Code Points", input: "string", output: "codepoints", convert: (input) => decimal.parse(input) },
+    { id: 0x120B, label: "Escaped", input: "string", output: "codepoints", convert: (input) => escaped.parse(input) },
+
     // { id: 0x1300, label: "UTF-8", input: "string", output: "bytes", convert: (input) => getUTF8Bytes(stringToCodePoints(input)) },
     { id: 0x1304, inverse: 0x3104, label: "Base64", input: "string", output: "bytes", convert: (input) => new Uint8Array([...atob(input)].map(c => c.charCodeAt(0))) },
     { id: 0x1306, inverse: 0x3106, label: "Hex Bytes", input: "string", output: "bytes", convert: parseHexBytes },
@@ -96,7 +88,8 @@ const availableBlocks = [
     { id: 0x2301, inverse: 0x3201, label: "UTF-16 LE", input: "codepoints", output: "bytes", convert: (input) => new Uint8Array(new Uint16Array(String.fromCodePoint(...input).split("").map(c => c.charCodeAt(0))).buffer) },
     { id: 0x2302, inverse: 0x3202, label: "UTF-32", input: "codepoints", output: "bytes", convert: (input) => new Uint8Array(new Uint32Array(input).buffer) },
     { id: 0x2100, inverse: 0x1200, label: "Code Points to String", input: "codepoints", output: "string", convert: (input) => String.fromCodePoint(...input) },
-    { id: 0x2101, inverse: 0x1201, label: "To Hex", input: "codepoints", output: "string", convert: (input) => input.map(cp => "U+" + cp.toString(16).toUpperCase()).join(" ") },
+    { id: 0x2101, inverse: 0x1201, label: "As Hex List", input: "codepoints", output: "string", convert: (input) => input.map(cp => cp.toString(16).toUpperCase()).join(" ") },
+    { id: 0x210A, inverse: 0x120A, label: "As Decimal List", input: "codepoints", output: "string", convert: (input) => input.map(cp => cp.toString(10).toUpperCase()).join(" ") },
 
     { id: 0x3200, inverse: 0x2300, label: "UTF-8", input: "bytes", output: "codepoints", convert: (input) => stringToCodePoints(parseUTF8Bytes(input)) },
     { id: 0x3201, inverse: 0x2301, label: "UTF-16 LE", input: "bytes", output: "codepoints", convert: (input) => stringToCodePoints(String.fromCharCode(...new Uint16Array(input.buffer))) },
