@@ -18,11 +18,10 @@
   display: flex;
   flex-direction: column;
 }
-.inputContainer {
-  flex: 0 0 320px;
-}
+.inputContainer,
 .outputContainer {
   flex: 0 0 320px;
+  overflow: hidden;
 }
 .inputList {
   list-style: none;

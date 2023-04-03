@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { decimal, escaped, hex, windows1252 } from "./formats";
+import { decimal, escaped, hex, regexCharClass, windows1252 } from "./formats";
 import { NodeViewer } from "./NodeViewer";
 import styles from "./TheChain.module.css";
 import { TheChainError } from "./TheChainError";
@@ -77,6 +77,7 @@ const availableBlocks = [
     { id: 0x1201, inverse: 0x2101, label: "Hex Code Points", input: "string", output: "codepoints", convert: (input) => hex.parse(input) },
     { id: 0x120A, inverse: 0x210A, label: "Decimal Code Points", input: "string", output: "codepoints", convert: (input) => decimal.parse(input) },
     { id: 0x120B, label: "Escaped", input: "string", output: "codepoints", convert: (input) => escaped.parse(input) },
+    { id: 0x120C, label: "Regex Character Class", input: "string", output: "codepoints", convert: (input) => regexCharClass.parse(input) },
 
     // { id: 0x1300, label: "UTF-8", input: "string", output: "bytes", convert: (input) => getUTF8Bytes(stringToCodePoints(input)) },
     { id: 0x1304, inverse: 0x3104, label: "Base64", input: "string", output: "bytes", convert: (input) => new Uint8Array([...atob(input)].map(c => c.charCodeAt(0))) },
@@ -144,13 +145,13 @@ export function TheChainPage ({ input, initialChain }) {
     try {
         /** @type {string|number[]|Uint8Array} */
         // @ts-ignore
-        output = performTheChain(theChain, input);
+        output = performTheChain(theChain, input).slice(0, 0x1000);
     }
     catch (e) {
         if (e instanceof TheChainError) {
             errorIndex = e.errorIndex;
             console.log(e.message);
-            output = performTheChain(theChain.slice(0, errorIndex), input);
+            output = performTheChain(theChain.slice(0, errorIndex), input).slice(0, 0x1000);
         }
         else {
             throw e;

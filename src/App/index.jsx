@@ -84,7 +84,9 @@ export default class App extends Component {
       const ii = formats[format];
       try {
         if(ii.isValid(value)) {
-          document.title = `${TITLE} - ${String.fromCodePoint(...ii.parse(value))}`;
+          // Only use first 256 code points in title
+          const codePoints = ii.parse(value).slice(0, 0x100);
+          document.title = `${TITLE} - ${String.fromCodePoint(...codePoints)}`;
         }
       } catch (e) {}
     }
@@ -116,10 +118,13 @@ export default class App extends Component {
     }
     catch (e) {}
 
+    // Set character limit
+    codepoints = codepoints.slice(0, 0x1000);
+
     // Re-order so "raw" is at start
     const inputFormatList = [ "raw", ...Object.keys(formats).filter(key => key !== "raw") ];
 
-    const chain = getChainStart(format);
+    const chain = startTheChain(format);
 
     return (
       <div className={classes.container}>
@@ -158,6 +163,9 @@ export default class App extends Component {
                         classNames += " " + classes.selectedInput;
                       }
 
+                      // Only use first 256 characters in the preview
+                      const codePoints = isValid ? ij.parse(value).slice(0, 0x100) : [];
+
                       return (
                         <li
                           key={key}
@@ -165,7 +173,7 @@ export default class App extends Component {
                           onClick={isValid ? (() => this.setValue(value, key)) : undefined}
                         >
                           {ij.label}
-                          { isValid && <p>{String.fromCodePoint(...ij.parse(value))}</p> }
+                          <p>{String.fromCodePoint(...codePoints)}</p>
                         </li>
                       );
                     } catch (e) {
@@ -235,7 +243,7 @@ function getHash () {
 /**
  * @param {string} format
  */
-function getChainStart (format) {
+function startTheChain (format) {
   switch (format) {
     case "raw": return [0x1200];
     case "base64Utf8": return [0x1304,0x3200];
@@ -244,6 +252,7 @@ function getChainStart (format) {
     case "decimal": return [0x120A];
     case "encoded": return null;
     case "escaped": return [0x120B];
+    case "regexCharClass": return [0x120C];
     case "hex": return [0x1201];
     case "mainlandTelegraph": return null;
     case "taiwanTelegraph": return null;

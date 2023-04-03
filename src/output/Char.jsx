@@ -3,7 +3,7 @@ import classes from '../App/style.module.css';
 import charClasses from "./Char.module.css";
 
 /**
- * @param {{ value: number; ucd?: { getName: (char: string) => string; }; }} props
+ * @param {{ value: number; ucd: { getName: (char: string) => string; }?; }} props
  */
 
 export function Char(props) {
