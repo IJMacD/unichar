@@ -14,15 +14,6 @@
 .input:focus {
   outline: none;
 }
-.inOutContainer {
-  display: flex;
-  flex-direction: column;
-}
-.inputContainer,
-.outputContainer {
-  flex: 0 0 320px;
-  overflow: hidden;
-}
 .inputList {
   list-style: none;
   padding: 0;
@@ -114,7 +105,13 @@
 }
 @media screen and (min-width: 1024px) {
   .inOutContainer {
+    display: flex;
     flex-direction: row;
+  }
+  .inputContainer,
+  .outputContainer {
+    flex: 0 0 320px;
+    overflow: hidden;
   }
   .inputList {
     display: unset;
