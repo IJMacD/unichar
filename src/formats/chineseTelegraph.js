@@ -1,6 +1,6 @@
 
-const taiwanTelegraphMapping = require('../data/TaiwanTelegraph.json');
-const mainlandTelegraphMapping = require('../data/MainlandTelegraph.json');
+import taiwanTelegraphMapping from '../data/TaiwanTelegraph.json';
+import mainlandTelegraphMapping from '../data/MainlandTelegraph.json';
 
 const TAIWAN_MAX_CODE = 9798;
 const MAINLAND_MAX_CODE = 9694;

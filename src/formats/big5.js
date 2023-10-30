@@ -1,4 +1,4 @@
-const data = require('../data/big5.json');
+import data from '../data/big5.json';
 
 /** @type {import('.').Format} */
 export const big5 = {
