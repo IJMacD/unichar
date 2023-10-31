@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-
+import React, { useState } from 'react';
+import { useUCD } from './useUCD';
 import "./UCDSearch.css";
 
 /**
@@ -10,13 +10,9 @@ import "./UCDSearch.css";
  */
 export default function UCDSearch ({ onChoose }) {
     const [ value, setValue ] = useState("");
-    const [ ucd, setUCD ] = useState(null);
+    const ucd = useUCD();
 
-    useEffect(() => {
-        if (value && !ucd) {
-            fetchUCD();
-        }
-    }, [ucd, value]);
+    if (!ucd) return null;
 
     const results = value.length >= 3 ? searchUCD(ucd, value) : [];
 
@@ -31,20 +27,11 @@ export default function UCDSearch ({ onChoose }) {
             </ul>
         </div>
     )
-
-    async function fetchUCD() {
-        let { default: ucd } = await import('ijmacd.ucd');
-
-        // prime unicode data
-        ucd.getName("a");
-
-        setUCD(ucd);
-    }
 }
 
 /**
  *
- * @param {{ characterNameList: string[] }} ucd
+ * @param {{ getName: (name: string) => string; characterNameList: string[] }} ucd
  * @param {string} value
  * @param {number} limit
  */
@@ -54,6 +41,11 @@ function searchUCD (ucd, value, limit=100) {
 
     if (!ucd) {
         return [];
+    }
+
+    if (!ucd.characterNameList) {
+        // prime unicode data
+        ucd.getName("a");
     }
 
     try {
